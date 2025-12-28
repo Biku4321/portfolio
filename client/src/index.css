@@ -1,0 +1,20 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* smooth theme transition */
+* {
+  @apply transition-colors duration-200;
+}
+
+body {
+  @apply bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+/* subtle gradient utility */
+.bg-app-gradient {
+  background-image: radial-gradient(40% 60% at 10% 10%, rgba(99,102,241,.15), transparent 60%),
+                    radial-gradient(50% 50% at 90% 10%, rgba(236,72,153,.15), transparent 60%),
+                    radial-gradient(60% 60% at 50% 90%, rgba(34,197,94,.12), transparent 60%);
+}
