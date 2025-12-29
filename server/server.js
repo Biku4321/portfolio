@@ -31,13 +31,20 @@ if (!process.env.JWT_SECRET) {
 // ✅ Enhanced CORS configuration
 app.use(
   cors({
-    origin: ["http://localhost:5173", "http://localhost:3000"],
+    origin: [
+      "http://localhost:5173",
+      "http://localhost:3000",
+      "https://portfolio-biku4321s-projects.vercel.app",
+      "https://portfolio-three-drab-22.vercel.app",
+      "https://portfolio-git-main-biku4321s-projects.vercel.app",
+      "https://portfolio-r0e6ipuer-biku4321s-projects.vercel.app",
+    ],
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
-
+app.options("*", cors());
 // ✅ Middleware
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
@@ -88,8 +95,7 @@ app.use("*", (req, res) => {
 
 // ✅ MongoDB + server startup
 const PORT = process.env.PORT || 5000;
-const mongoUri =
-  process.env.MONGO_URI || "mongodb://127.0.0.1:27017/portfolio";
+const mongoUri = process.env.MONGO_URI || "mongodb://127.0.0.1:27017/portfolio";
 
 mongoose
   .connect(mongoUri)
