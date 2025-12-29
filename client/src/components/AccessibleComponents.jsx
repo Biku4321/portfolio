@@ -1,7 +1,4 @@
-// src/components/AccessibleComponents.jsx
 import React from 'react';
-
-// Enhanced Button Component with proper accessibility
 export const AccessibleButton = ({ 
   children, 
   onClick, 
