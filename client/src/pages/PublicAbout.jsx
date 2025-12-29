@@ -61,7 +61,7 @@ const PublicAbout = () => {
 
   useEffect(() => {
     axios
-      .get(`${import.meta.env.VITE_API_BASE_URL}/about`)
+      .get(`${import.meta.env.VITE_API_URL}/about`)
       .then((res) => setData(res.data?.data ?? res.data))
       .catch((err) => console.error("Failed to load about data", err));
   }, []);
