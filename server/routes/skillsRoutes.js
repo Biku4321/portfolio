@@ -1,5 +1,5 @@
 import express from 'express';
-import { getSkill, addSkill, updateSkill, deleteSkill } from '../controllers/skillsController.js';
+import { getSkill, addSkill, updateSkill, deleteSkill } from '../controllers/SkillsController.js';
 import { verifyToken } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
