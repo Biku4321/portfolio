@@ -1,5 +1,5 @@
 import express from 'express';
-import { getExperience, addExperience, updateExperience, deleteExperience } from '../controllers/experienceController.js';
+import { getExperience, addExperience, updateExperience, deleteExperience } from '../controllers/ExperienceController.js';
 import { verifyToken } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
