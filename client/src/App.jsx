@@ -12,21 +12,21 @@ import Skills from "./pages/Skills";
 import Education from "./pages/PublicEducation.jsx";
 import Projects from "./pages/PublicProjects.jsx"; // Changed
 import Experience from "./pages/PublicExperience.jsx";
-import Contact from "./pages/Contact";
+import Contact from "./pages/Contact.jsx";
 import NotFound from "./pages/NotFound";
 
 // Admin
 import AdminLogin from "./admin/AdminLogin";
 import AdminDebug from "./pages/AdminDebug";
 import AdminLayout from "./admin/AdminLayout";
-import ProtectedRoute from "./admin/ProtectedRoute";
+import ProtectedRoute from "./admin/ProtectedRoute.jsx";
 import ProjectsAdmin from "./admin/ProjectsAdmin";
 import ExperienceAdmin from "./admin/ExperienceAdmin";
 import EducationAdmin from "./admin/EducationAdmin";
 import SkillsAdmin from "./admin/SkillsAdmin";
 import CertificatesAdmin from "./admin/CertificatesAdmin";
 import AdminDashboard from "./admin/AdminDashboard";
-import AboutAdmin from "./admin/AboutAdmin";
+import AboutAdmin from "./admin/aboutAdmin.jsx";
 
 const App = () => {
   const [darkMode, setDarkMode] = useState(() => {
