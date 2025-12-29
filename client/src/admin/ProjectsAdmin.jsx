@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "../utils/axiosInstance";
+import axiosInstance from "../utils/axiosInstance";
 import { useToast } from "../context/ToastContext";
 
 export default function ProjectsAdmin() {
@@ -25,7 +25,7 @@ export default function ProjectsAdmin() {
 
   const fetchProjects = async () => {
     try {
-      const res = await axios.get("/projects");
+      const res = await axiosInstance.get("/projects");
       const data = res.data?.data ?? res.data;
       setProjects(Array.isArray(data) ? data : []);
     } catch (err) {
@@ -53,7 +53,7 @@ export default function ProjectsAdmin() {
     fd.append("image", file);
     try {
       setLoading(true);
-      const res = await axios.post("/upload", fd, { headers: { "Content-Type": "multipart/form-data" } });
+      const res = await axiosInstance.post("/upload", fd, { headers: { "Content-Type": "multipart/form-data" } });
       const url = res.data?.url ?? res.data?.secure_url ?? res.data;
       setForm((p) => ({ ...p, image: url }));
       push({ type: "success", message: "Image uploaded" });
@@ -81,10 +81,10 @@ export default function ProjectsAdmin() {
 
     try {
       if (editId) {
-        await axios.put(`/projects/${editId}`, payload);
+        await axiosInstance.put(`/projects/${editId}`, payload);
         push({ type: "success", message: "Project updated" });
       } else {
-        await axios.post("/projects", payload);
+        await axiosInstance.post("/projects", payload);
         push({ type: "success", message: "Project created" });
       }
       resetForm();
@@ -140,7 +140,7 @@ export default function ProjectsAdmin() {
   const handleDelete = async (id) => {
     if (!confirm("Delete this project?")) return;
     try {
-      await axios.delete(`/projects/${id}`);
+      await axiosInstance.delete(`/projects/${id}`);
       push({ type: "success", message: "Deleted" });
       await fetchProjects();
     } catch (err) {

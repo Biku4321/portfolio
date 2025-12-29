@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import axios from "../utils/axiosInstance";
+import axiosInstance from "../utils/axiosInstance";
 
 const AdminLogin = () => {
   const [formData, setFormData] = useState({ email: "", password: "" });
@@ -20,7 +20,7 @@ const AdminLogin = () => {
     setLoading(true);
     try {
       // axiosInstance base already includes /api — call relative path
-      const res = await axios.post("/admin/login", formData);
+      const res = await axiosInstance.post("/admin/login", formData);
       // Expect token in res.data.token
       if (res.data?.token) {
         login(res.data.token, navigate);

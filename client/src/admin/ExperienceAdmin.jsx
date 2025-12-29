@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "../utils/axiosInstance";
+import axiosInstance from "../utils/axiosInstance";
 import { useToast } from "../context/ToastContext";
 
 export default function ExperienceAdmin() {
@@ -13,7 +13,7 @@ export default function ExperienceAdmin() {
 
   const fetch = async () => {
     try {
-      const res = await axios.get("/experience");
+      const res = await axiosInstance.get("/experience");
       const data = res.data?.data ?? res.data;
       setExperience(Array.isArray(data) ? data : []);
     } catch (err) {
@@ -28,10 +28,10 @@ export default function ExperienceAdmin() {
     setLoading(true);
     try {
       if (editId) {
-        await axios.put(`/experience/${editId}`, form);
+        await axiosInstance.put(`/experience/${editId}`, form);
         push({ type: "success", message: "Updated" });
       } else {
-        await axios.post("/experience", form);
+        await axiosInstance.post("/experience", form);
         push({ type: "success", message: "Added" });
       }
       setForm({ role: "", company: "", period: "", description: "" });
@@ -48,7 +48,7 @@ export default function ExperienceAdmin() {
   const handleDelete = async (id) => {
     if (!confirm("Delete this experience?")) return;
     try {
-      await axios.delete(`/experience/${id}`);
+      await axiosInstance.delete(`/experience/${id}`);
       push({ type: "success", message: "Deleted" });
       await fetch();
     } catch (err) {

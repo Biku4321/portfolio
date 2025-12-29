@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
-import axios from "../utils/axiosInstance";
+import axiosInstance from "../utils/axiosInstance";
 import { BadgeCheck } from "lucide-react";
 
 const PublicSkills = () => {
   const [skills, setSkills] = useState([]);
 
   useEffect(() => {
-    axios
+    axiosInstance
       .get("/skills")
       .then((res) => {
         const data = res.data?.data ?? res.data;

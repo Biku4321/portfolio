@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "../utils/axiosInstance";
+import axiosInstance from "../utils/axiosInstance";
 
 const EducationAdmin = () => {
   const [formData, setFormData] = useState({ degree: "", institution: "", year: "" });
@@ -8,7 +8,7 @@ const EducationAdmin = () => {
 
   const fetchEducation = async () => {
     try {
-      const res = await axios.get("/education");
+      const res = await axiosInstance.get("/education");
       const data = res.data?.data ?? res.data;
       setEducationList(Array.isArray(data) ? data : []);
     } catch (error) {
@@ -26,9 +26,9 @@ const EducationAdmin = () => {
   const handleSubmit = async () => {
     try {
       if (editId) {
-        await axios.put(`/education/${editId}`, formData);
+        await axiosInstance.put(`/education/${editId}`, formData);
       } else {
-        await axios.post("/education", formData);
+        await axiosInstance.post("/education", formData);
       }
       setFormData({ degree: "", institution: "", year: "" });
       setEditId(null);
@@ -47,7 +47,7 @@ const EducationAdmin = () => {
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete?")) {
       try {
-        await axios.delete(`/education/${id}`);
+        await axiosInstance.delete(`/education/${id}`);
         fetchEducation();
       } catch (err) {
         console.error("Delete error:", err);

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "../utils/axiosInstance";
+import axiosInstance from "../utils/axiosInstance";
 import { useToast } from "../context/ToastContext";
 
 export default function SkillsAdmin() {
@@ -13,7 +13,7 @@ export default function SkillsAdmin() {
 
   const fetch = async () => {
     try {
-      const res = await axios.get("/skills");
+      const res = await axiosInstance.get("/skills");
       const data = res.data?.data ?? res.data;
       setSkills(Array.isArray(data) ? data : []);
     } catch (err) {
@@ -33,10 +33,10 @@ export default function SkillsAdmin() {
     setLoading(true);
     try {
       if (editId) {
-        await axios.put(`/skills/${editId}`, form);
+        await axiosInstance.put(`/skills/${editId}`, form);
         push({ type: "success", message: "Skill updated" });
       } else {
-        await axios.post("/skills", form);
+        await axiosInstance.post("/skills", form);
         push({ type: "success", message: "Skill added" });
       }
       reset();
@@ -52,7 +52,7 @@ export default function SkillsAdmin() {
   const handleDelete = async (id) => {
     if (!confirm("Delete this skill?")) return;
     try {
-      await axios.delete(`/skills/${id}`);
+      await axiosInstance.delete(`/skills/${id}`);
       push({ type: "success", message: "Deleted" });
       fetch();
     } catch (err) {

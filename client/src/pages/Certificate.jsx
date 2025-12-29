@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
-import axios from "../utils/axiosInstance";
+import axiosInstance from "../utils/axiosInstance";
 
 const Certificates = () => {
   const [certs, setCerts] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    axios.get("/certificates")
+    axiosInstance.get("/certificates")
       .then(res => setCerts(res.data.data || res.data))
       .catch(err => console.error("Error fetching certificates:", err))
       .finally(() => setLoading(false));

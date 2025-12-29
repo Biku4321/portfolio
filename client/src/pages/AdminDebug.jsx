@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "../utils/axiosInstance";
+import axiosInstance from "../utils/axiosInstance";
 
 const endpoints = [
   "/projects",
@@ -18,7 +18,7 @@ export default function AdminDebug() {
       const r = {};
       for (const ep of endpoints) {
         try {
-          const res = await axios.get(ep);
+          const res = await axiosInstance.get(ep);
           r[ep] = res.data;
         } catch (err) {
           r[ep] = { error: err.message };

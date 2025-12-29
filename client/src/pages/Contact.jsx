@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import axios from "../utils/axiosInstance";
+import axiosInstance from "../utils/axiosInstance";
 import SEOHead from "../components/SEOHead";
 
 const Contact = () => {
@@ -12,7 +12,7 @@ const Contact = () => {
     setStatus("sending");
     setErrorText("");
     try {
-      const res = await axios.post("/contact", form);
+      const res = await axiosInstance.post("/contact", form);
       const success = res.data?.success ?? true;
       if (success) {
         setStatus("sent");

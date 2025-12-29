@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "../utils/axiosInstance";
+import axiosInstance from "../utils/axiosInstance";
 import { useToast } from "../context/ToastContext";
 
 export default function CertificatesAdmin() {
@@ -13,7 +13,7 @@ export default function CertificatesAdmin() {
 
   const fetchCerts = async () => {
     try {
-      const res = await axios.get("/certificates");
+      const res = await axiosInstance.get("/certificates");
       setCerts(res.data?.data || res.data);
     } catch (err) {
       console.error("fetch certs", err);
@@ -35,7 +35,7 @@ export default function CertificatesAdmin() {
 
     setLoading(true);
     try {
-      const res = await axios.post("/upload", fd, {
+      const res = await axiosInstance.post("/upload", fd, {
         headers: { "Content-Type": "multipart/form-data" },
       });
       const fileUrl = res.data?.url ?? res.data?.secure_url ?? res.data;
@@ -54,10 +54,10 @@ export default function CertificatesAdmin() {
     setLoading(true);
     try {
       if (editId) {
-        await axios.put(`/certificates/${editId}`, form);
+        await axiosInstance.put(`/certificates/${editId}`, form);
         push({ type: "success", message: "Updated" });
       } else {
-        await axios.post("/certificates", form);
+        await axiosInstance.post("/certificates", form);
         push({ type: "success", message: "Added" });
       }
       setEditId(null);
@@ -76,7 +76,7 @@ export default function CertificatesAdmin() {
   const handleDelete = async (id) => {
     if (!confirm("Delete this?")) return;
     try {
-      await axios.delete(`/certificates/${id}`);
+      await axiosInstance.delete(`/certificates/${id}`);
       push({ type: "success", message: "Deleted" });
       await fetchCerts();
     } catch (err) { console.error(err); }

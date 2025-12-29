@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "../utils/axiosInstance";
+import axiosInstance from "../utils/axiosInstance";
 import {
   Mail,
   Phone,
@@ -64,7 +64,7 @@ const PublicAbout = () => {
   const [data, setData] = useState(null);
 
   useEffect(() => {
-    axios
+    axiosInstance
       .get("/about")
 
       .then((res) => setData(res.data?.data ?? res.data))

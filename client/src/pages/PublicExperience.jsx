@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "../utils/axiosInstance";
+import axiosInstance from "../utils/axiosInstance";
 
 const fallback = [
   { _id: "1", position: "Frontend Developer", company: "Example Co.", year: "2024", description: "Fallback item when API is unavailable." }
@@ -10,7 +10,7 @@ const PublicExperience = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    axios.get("/experience")
+    axiosInstance.get("/experience")
       .then((res) => setItems(res.data?.length ? res.data : fallback))
       .catch(() => setItems(fallback))
       .finally(() => setLoading(false));

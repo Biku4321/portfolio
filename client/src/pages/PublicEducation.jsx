@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
-import axios from "../utils/axiosInstance";
+import axiosInstance from "../utils/axiosInstance";
 import { GraduationCap } from "lucide-react";
 
 const PublicEducation = () => {
   const [education, setEducation] = useState([]);
 
   useEffect(() => {
-    axios
+    axiosInstance
       .get("/education")
       .then((res) => setEducation(res.data))
       .catch((err) => console.error("Failed to fetch education:", err));

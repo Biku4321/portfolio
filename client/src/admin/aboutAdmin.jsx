@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "../utils/axiosInstance";
+import axiosInstance from "../utils/axiosInstance";
 import { useToast } from "../context/ToastContext"; // optional, falls back to alert
 
 const LabeledInput = ({ label, name, value, onChange, placeholder }) => (
@@ -77,7 +77,7 @@ export default function AboutAdmin() {
   useEffect(() => {
     (async () => {
       try {
-        const res = await axios.get("/about");
+        const res = await axiosInstance.get("/about");
         const data = res.data?.data ?? res.data;
         if (data) setAbout((prev) => ({ ...prev, ...data }));
       } catch (err) {
@@ -119,7 +119,7 @@ export default function AboutAdmin() {
 
     try {
       setLoading(true);
-      const res = await axios.post("/upload", fd, {
+      const res = await axiosInstance.post("/upload", fd, {
         headers: { "Content-Type": "multipart/form-data" },
       });
       const url = res.data?.url ?? res.data?.secure_url ?? res.data;
@@ -184,7 +184,7 @@ export default function AboutAdmin() {
   const handleSave = async () => {
     try {
       setLoading(true);
-      await axios.post("/about", about);
+      await axiosInstance.post("/about", about);
       push({ type: "success", message: "About saved" });
     } catch (err) {
       console.error("save about", err);

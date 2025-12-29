@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "../utils/axiosInstance";
+import axiosInstance from "../utils/axiosInstance";
 import { ExternalLink } from "lucide-react";
 import { motion } from "framer-motion";
 import SEOHead from "../components/SEOHead";
@@ -28,7 +28,7 @@ const PublicProjects = () => {
       q.set('page', opts.page || page);
       q.set('limit', opts.limit || limit);
       q.set('sort', sort);
-      const res = await axios.get('/projects?' + q.toString());
+      const res = await axiosInstance.get('/projects?' + q.toString());
       const data = res.data?.data || [];
       setProjects(data);
       setTotal(res.data?.meta?.total || data.length);
