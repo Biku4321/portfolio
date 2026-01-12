@@ -7,21 +7,59 @@ import {
   Mail,
   Phone,
   MapPin,
-  Download,
-  ExternalLink,
   Code2,
   Sparkles,
   ArrowRight,
+  ExternalLink,
   Github,
   Linkedin,
   Twitter,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
+import { GitHubCalendar } from "react-github-calendar";
+import Skeleton from "react-loading-skeleton";
+import "react-loading-skeleton/dist/skeleton.css";
+
+// --- Error Boundary Component to prevent Crash ---
+class CalendarErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error, errorInfo) {
+    console.error("GitHub Calendar Error:", error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="text-center p-4 text-gray-500 dark:text-gray-400">
+          <p>Contribution graph unavailable for this period.</p>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 const Home = () => {
   const [aboutData, setAboutData] = useState(null);
+  const [skills, setSkills] = useState([]);
+  const [projects, setProjects] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [currentRole, setCurrentRole] = useState(0);
+
+  // State for GitHub Calendar (Current View Month)
+  const [githubDate, setGithubDate] = useState(new Date());
+
   const navigate = useNavigate();
 
   const roles = [
@@ -33,51 +71,87 @@ const Home = () => {
 
   useEffect(() => {
     AOS.init({ duration: 1000, once: true });
-  }, []);
-
-  useEffect(() => {
-    fetchAboutData();
-    const interval = setInterval(() => {
-      setCurrentRole((prev) => (prev + 1) % roles.length);
-    }, 3000);
+    fetchAllData();
+    const interval = setInterval(
+      () => setCurrentRole((prev) => (prev + 1) % roles.length),
+      3000
+    );
     return () => clearInterval(interval);
   }, []);
 
-  const fetchAboutData = async () => {
+  const fetchAllData = async () => {
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/about`
-      );
-      const data = await response.json();
-      setAboutData(data);
+      const apiUrl = import.meta.env.VITE_API_URL;
+
+      const [aboutRes, skillsRes, projectsRes] = await Promise.all([
+        fetch(`${apiUrl}/api/about`),
+        fetch(`${apiUrl}/api/skills`),
+        fetch(`${apiUrl}/api/projects`),
+      ]);
+
+      if (aboutRes.ok) setAboutData(await aboutRes.json());
+
+      if (skillsRes.ok) {
+        const skillsJson = await skillsRes.json();
+        setSkills(
+          Array.isArray(skillsJson) ? skillsJson : skillsJson.data || []
+        );
+      }
+
+      if (projectsRes.ok) {
+        const projectsJson = await projectsRes.json();
+        const allProjects = Array.isArray(projectsJson)
+          ? projectsJson
+          : projectsJson.data || [];
+        setProjects(allProjects.slice(0, 3));
+      }
     } catch (error) {
-      console.error("Error fetching about data:", error);
+      console.error("Error fetching home data:", error);
     } finally {
       setIsLoading(false);
     }
   };
 
+  const topSkills = skills
+    .flatMap((item) => item.skills || item)
+    .map((s) => s.name || s)
+    .slice(0, 8);
+
   const handleContactClick = () => navigate("/contact");
   const handleViewWorkClick = () => navigate("/projects");
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-blue-50 dark:from-gray-900 dark:to-slate-800">
-        <motion.div
-          animate={{ rotate: 360 }}
-          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-          className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full"
-        />
-      </div>
-    );
-  }
+  // --- GitHub Navigation Logic ---
+  const handlePrevMonth = () => {
+    setGithubDate((prev) => {
+      const newDate = new Date(prev);
+      newDate.setMonth(newDate.getMonth() - 1);
+      return newDate;
+    });
+  };
+
+  const handleNextMonth = () => {
+    setGithubDate((prev) => {
+      const newDate = new Date(prev);
+      newDate.setMonth(newDate.getMonth() + 1);
+      return newDate;
+    });
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-gray-900 dark:via-slate-800 dark:to-gray-900 overflow-hidden">
+      <Helmet>
+        <title>
+          {aboutData ? `${aboutData.name} | Portfolio` : "Portfolio"}
+        </title>
+        <meta
+          name="description"
+          content={aboutData?.tagline || "Full Stack Developer Portfolio"}
+        />
+      </Helmet>
+
       {/* Hero Section */}
       <section className="relative min-h-screen flex items-center justify-center px-6">
         <div className="relative z-10 max-w-6xl mx-auto grid lg:grid-cols-2 gap-12 items-center">
-          {/* Hero Content */}
           <motion.div
             initial={{ opacity: 0, x: -50 }}
             animate={{ opacity: 1, x: 0 }}
@@ -92,21 +166,24 @@ const Home = () => {
             </div>
 
             <div className="space-y-4">
-              <motion.h1 className="text-5xl md:text-7xl font-bold text-gray-900 dark:text-white leading-tight">
+              <h1 className="text-5xl md:text-7xl font-bold text-gray-900 dark:text-white leading-tight">
                 Hi, I&apos;m{" "}
                 <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                  {aboutData?.name || "Bikash"}
+                  {isLoading ? (
+                    <Skeleton width={200} />
+                  ) : (
+                    aboutData?.name || "Bikash"
+                  )}
                 </span>
-              </motion.h1>
+              </h1>
 
               <div className="h-16 flex items-center">
                 <AnimatePresence mode="wait">
                   <motion.h2
                     key={currentRole}
-                    initial={{ opacity: 0, y: 20, rotateX: 90 }}
-                    animate={{ opacity: 1, y: 0, rotateX: 0 }}
-                    exit={{ opacity: 0, y: -20, rotateX: -90 }}
-                    transition={{ duration: 0.5 }}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
                     className="text-2xl md:text-3xl font-semibold text-gray-700 dark:text-gray-200"
                   >
                     {roles[currentRole]}
@@ -116,62 +193,58 @@ const Home = () => {
             </div>
 
             <p className="text-lg md:text-xl text-gray-600 dark:text-gray-300 leading-relaxed max-w-2xl">
-              {aboutData?.bio ||
-                "I create stunning digital experiences that blend creativity with technology. With a focus on user experience and robust functionality, I turn ideas into impactful solutions."}
+              {isLoading ? (
+                <Skeleton count={3} />
+              ) : (
+                aboutData?.bio || "Building digital experiences..."
+              )}
             </p>
-             <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.6 }}
-              className="grid grid-cols-2 lg:grid-cols-4 gap-6"
-            >
-              <div className="text-center">
-                <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">
-                  {aboutData?.experience?.yearsOfExperience || '5'}+
+
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+              {[
+                {
+                  label: "Years Exp.",
+                  val: aboutData?.experience?.yearsOfExperience || "2+",
+                },
+                {
+                  label: "Projects",
+                  val: aboutData?.experience?.projectsCompleted || "10+",
+                },
+                {
+                  label: "Clients",
+                  val: aboutData?.experience?.clientsSatisfied || "100%",
+                },
+                { label: "Total Proj.", val: projects.length || "5+" },
+              ].map((stat, i) => (
+                <div key={i} className="text-center">
+                  <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">
+                    {isLoading ? <Skeleton width={40} /> : stat.val}
+                  </div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">
+                    {stat.label}
+                  </div>
                 </div>
-                <div className="text-sm text-gray-500 dark:text-gray-400">Years Experience</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-purple-600 dark:text-purple-400">
-                  {aboutData?.experience?.projectsCompleted || '50'}+
-                </div>
-                <div className="text-sm text-gray-500 dark:text-gray-400">Projects Delivered</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-green-600 dark:text-green-400">
-                  {aboutData?.experience?.clientsSatisfied || '30'}+
-                </div>
-                <div className="text-sm text-gray-500 dark:text-gray-400">Happy Clients</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-orange-600 dark:text-orange-400">98%</div>
-                <div className="text-sm text-gray-500 dark:text-gray-400">Success Rate</div>
-              </div>
-            </motion.div>
+              ))}
+            </div>
 
             <div className="flex flex-col sm:flex-row gap-4">
-              
               <motion.button
                 onClick={handleContactClick}
                 whileHover={{ scale: 1.05 }}
                 className="group inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-2xl font-semibold shadow-lg hover:shadow-xl transition-all"
               >
-                <Mail className="w-5 h-5 mr-2" />
-                Let&apos;s Work Together
+                <Mail className="w-5 h-5 mr-2" /> Let&apos;s Work Together
               </motion.button>
-
               <motion.button
                 onClick={handleViewWorkClick}
                 whileHover={{ scale: 1.05 }}
                 className="group inline-flex items-center justify-center px-8 py-4 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 rounded-2xl font-semibold hover:bg-gray-50 dark:hover:bg-gray-800"
               >
-                <Code2 className="w-5 h-5 mr-2" />
-                View My Work
+                <Code2 className="w-5 h-5 mr-2" /> View My Work
               </motion.button>
             </div>
           </motion.div>
 
-          {/* Profile Image */}
           <motion.div
             initial={{ opacity: 0, x: 50 }}
             animate={{ opacity: 1, x: 0 }}
@@ -179,24 +252,23 @@ const Home = () => {
             className="relative"
           >
             <div className="relative w-full max-w-lg mx-auto rounded-3xl overflow-hidden shadow-2xl">
-              {aboutData?.profileImage ? (
+              {isLoading ? (
+                <Skeleton height={400} />
+              ) : aboutData?.profileImage ? (
                 <img
                   src={aboutData.profileImage}
-                  alt={`${aboutData.name} Profile`}
+                  alt="Profile"
                   className="w-full h-auto object-cover hover:scale-105 transition-transform duration-500"
                 />
               ) : (
-                <div className="w-full h-96 bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
-                  <span className="text-white text-6xl font-bold">
-                    {aboutData?.name?.charAt(0) || "B"}
-                  </span>
+                <div className="w-full h-96 bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-6xl font-bold">
+                  {aboutData?.name?.charAt(0) || "B"}
                 </div>
               )}
             </div>
           </motion.div>
         </div>
 
-        {/* Scroll Indicator */}
         <motion.div
           animate={{ y: [0, 10, 0] }}
           transition={{ duration: 2, repeat: Infinity }}
@@ -206,98 +278,169 @@ const Home = () => {
         </motion.div>
       </section>
 
-      {/* About Section */}
-      <section className="py-20 bg-white dark:bg-gray-900" data-aos="fade-up">
-        <div className="max-w-5xl mx-auto px-6 text-center space-y-6">
-          <h2 className="text-4xl font-bold text-gray-900 dark:text-white">
-            About Me
+      {/* GitHub Activity Section */}
+      <section className="py-10 bg-white dark:bg-gray-900 flex justify-center">
+        <div className="max-w-5xl w-full px-6">
+          <h2 className="text-3xl font-bold text-center mb-8 text-gray-900 dark:text-white">
+            Github Contributions
           </h2>
-          <p className="text-lg text-gray-600 dark:text-gray-300">
-            {aboutData?.about ||
-              "I’m a passionate developer who enjoys crafting clean, user-friendly applications. With experience across multiple technologies, I thrive in solving problems and delivering solutions that matter."}
-          </p>
+
+          <div className="flex items-center justify-center gap-4 md:gap-8">
+            <button
+              onClick={handlePrevMonth}
+              className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors"
+              aria-label="Previous Month"
+            >
+              <ChevronLeft className="w-8 h-8 text-gray-600 dark:text-gray-300" />
+            </button>
+
+            <div className="flex flex-col items-center">
+              <h3 className="mb-4 font-semibold text-lg text-gray-700 dark:text-gray-200">
+                {githubDate.toLocaleString("default", {
+                  month: "long",
+                  year: "numeric",
+                })}
+              </h3>
+
+              <div className="border p-4 rounded-xl bg-gray-50 dark:bg-gray-800 dark:border-gray-700 overflow-x-auto min-h-[150px] flex items-center justify-center">
+                {/* --- FIX: Wrapped in Error Boundary --- */}
+                <CalendarErrorBoundary key={githubDate.toString()}>
+                  <GitHubCalendar
+                    username={import.meta.env.VITE_GITHUB_USERNAME || "bikash"}
+                    year={githubDate.getFullYear()}
+                    colorScheme="light"
+                    blockSize={12}
+                    fontSize={14}
+                    hideTotalCount
+                    transformData={(data) => {
+                      // Filter for the selected month
+                      return data.filter((day) => {
+                        const d = new Date(day.date);
+                        return (
+                          d.getMonth() === githubDate.getMonth() &&
+                          d.getFullYear() === githubDate.getFullYear()
+                        );
+                      });
+                    }}
+                  />
+                </CalendarErrorBoundary>
+              </div>
+            </div>
+
+            <button
+              onClick={handleNextMonth}
+              className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors"
+              aria-label="Next Month"
+            >
+              <ChevronRight className="w-8 h-8 text-gray-600 dark:text-gray-300" />
+            </button>
+          </div>
         </div>
       </section>
 
       {/* Skills Section */}
       <section className="py-20 bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-800 dark:to-gray-900">
-        <div className="max-w-6xl mx-auto px-6">
-          <h2 className="text-4xl font-bold text-center text-gray-900 dark:text-white mb-12">
-            My Skills
-          </h2>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {["JavaScript", "React", "Node.js", "MongoDB", "TailwindCSS", "AWS"].map(
-              (skill, i) => (
-                <motion.div
-                  key={i}
-                  whileHover={{ scale: 1.05 }}
-                  className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md text-center font-semibold text-gray-800 dark:text-gray-200"
-                >
-                  {skill}
-                </motion.div>
-              )
-            )}
-          </div>
+        <h2 className="text-4xl font-bold text-center mb-12 text-gray-900 dark:text-white">
+          Top Skills
+        </h2>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-5xl mx-auto px-6">
+          {isLoading ? (
+            Array(8)
+              .fill(0)
+              .map((_, i) => <Skeleton key={i} height={60} borderRadius={12} />)
+          ) : topSkills.length > 0 ? (
+            topSkills.map((skill, i) => (
+              <div
+                key={i}
+                className="bg-white dark:bg-gray-700 dark:text-white p-6 rounded-xl shadow text-center font-semibold"
+              >
+                {skill}
+              </div>
+            ))
+          ) : (
+            <div className="col-span-full text-center text-gray-500">
+              No skills found.
+            </div>
+          )}
+        </div>
+        <div className="text-center mt-10">
+          <button
+            onClick={() => navigate("/skills")}
+            className="text-blue-600 dark:text-blue-400 font-semibold hover:underline"
+          >
+            View All Skills →
+          </button>
         </div>
       </section>
 
-      {/* Projects Preview */}
-      <section className="py-20 bg-white dark:bg-gray-900" data-aos="fade-up">
+      {/* Projects Section */}
+      <section className="py-20 bg-white dark:bg-gray-900">
         <div className="max-w-6xl mx-auto px-6">
           <h2 className="text-4xl font-bold text-center mb-12 text-gray-900 dark:text-white">
             Featured Projects
           </h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[1, 2, 3].map((p) => (
-              <motion.div
-                key={p}
-                whileHover={{ scale: 1.05 }}
-                className="bg-gray-50 dark:bg-gray-800 rounded-xl shadow-md overflow-hidden"
-              >
-                <img
-                  src={`https://picsum.photos/seed/project${p}/600/400`}
-                  alt={`Project ${p}`}
-                  className="w-full h-48 object-cover"
-                />
-                <div className="p-6">
-                  <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
-                    Project {p}
-                  </h3>
-                  <p className="text-gray-600 dark:text-gray-400 mt-2">
-                    A short description about this amazing project goes here.
-                  </p>
-                  <a
-                    href="#"
-                    className="inline-flex items-center text-blue-600 mt-4 font-medium"
-                  >
-                    View Details <ExternalLink className="w-4 h-4 ml-1" />
-                  </a>
-                </div>
-              </motion.div>
-            ))}
+            {isLoading ? (
+              Array(3)
+                .fill(0)
+                .map((_, i) => (
+                  <Skeleton key={i} height={300} borderRadius={12} />
+                ))
+            ) : projects.length > 0 ? (
+              projects.map((p) => (
+                <motion.div
+                  key={p._id}
+                  whileHover={{ scale: 1.05 }}
+                  className="bg-gray-50 dark:bg-gray-800 rounded-xl shadow-md overflow-hidden flex flex-col"
+                >
+                  <img
+                    src={
+                      p.image || `https://picsum.photos/seed/${p._id}/600/400`
+                    }
+                    alt={p.title}
+                    className="w-full h-48 object-cover"
+                  />
+                  <div className="p-6 flex flex-col flex-grow">
+                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
+                      {p.title}
+                    </h3>
+                    <p className="text-gray-600 dark:text-gray-400 mt-2 line-clamp-3">
+                      {p.description}
+                    </p>
+                    <div className="mt-auto pt-4">
+                      <a
+                        href={p.liveDemo || "#"}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center text-blue-600 font-medium hover:underline"
+                      >
+                        View Details <ExternalLink className="w-4 h-4 ml-1" />
+                      </a>
+                    </div>
+                  </div>
+                </motion.div>
+              ))
+            ) : (
+              <p className="text-center col-span-full">No projects found.</p>
+            )}
           </div>
         </div>
       </section>
 
-      {/* Hire Me CTA */}
-      <section className="py-20 bg-gradient-to-r from-blue-600 to-purple-600 text-white">
-        <div className="max-w-4xl mx-auto text-center px-6">
-          <h2 className="text-4xl font-bold mb-4">Interested in working together?</h2>
-          <p className="text-lg mb-8">
-            Let’s schedule a call and discuss how I can help bring your ideas to life.
-          </p>
-          <a
-            href="https://calendly.com/yourusername/meeting"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center px-8 py-4 bg-white text-blue-600 rounded-xl font-semibold shadow-lg hover:bg-gray-100 transition-all"
-          >
-            Hire Me <ArrowRight className="w-5 h-5 ml-2" />
-          </a>
-        </div>
+      {/* CTA */}
+      <section className="py-20 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-center">
+        <h2 className="text-4xl font-bold mb-4">Ready to Start?</h2>
+        <a
+          href={import.meta.env.VITE_CALENDLY_URL || "#"}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center px-8 py-4 bg-white text-blue-600 rounded-xl font-semibold shadow-lg hover:bg-gray-100 transition-all"
+        >
+          Hire Me <ArrowRight className="w-5 h-5 ml-2" />
+        </a>
       </section>
 
-      {/* Contact Section */}
+      {/* Footer */}
       <footer className="py-12 bg-gray-100 dark:bg-gray-800">
         <div className="max-w-5xl mx-auto px-6 text-center space-y-6">
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
@@ -305,13 +448,19 @@ const Home = () => {
           </h2>
           <div className="flex flex-wrap justify-center gap-6 text-gray-600 dark:text-gray-400">
             {aboutData?.email && (
-              <a href={`mailto:${aboutData.email}`} className="flex items-center">
+              <a
+                href={`mailto:${aboutData.email}`}
+                className="flex items-center hover:text-blue-500"
+              >
                 <Mail className="w-5 h-5 mr-2" />
                 {aboutData.email}
               </a>
             )}
             {aboutData?.phone && (
-              <a href={`tel:${aboutData.phone}`} className="flex items-center">
+              <a
+                href={`tel:${aboutData.phone}`}
+                className="flex items-center hover:text-blue-500"
+              >
                 <Phone className="w-5 h-5 mr-2" />
                 {aboutData.phone}
               </a>
@@ -325,17 +474,32 @@ const Home = () => {
           </div>
           <div className="flex justify-center space-x-6">
             {aboutData?.github && (
-              <a href={aboutData.github} target="_blank" rel="noopener noreferrer">
+              <a
+                href={aboutData.github}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-gray-900 dark:hover:text-white transition-colors"
+              >
                 <Github className="w-6 h-6" />
               </a>
             )}
             {aboutData?.linkedin && (
-              <a href={aboutData.linkedin} target="_blank" rel="noopener noreferrer">
+              <a
+                href={aboutData.linkedin}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-blue-600 transition-colors"
+              >
                 <Linkedin className="w-6 h-6" />
               </a>
             )}
             {aboutData?.twitter && (
-              <a href={aboutData.twitter} target="_blank" rel="noopener noreferrer">
+              <a
+                href={aboutData.twitter}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-blue-400 transition-colors"
+              >
                 <Twitter className="w-6 h-6" />
               </a>
             )}

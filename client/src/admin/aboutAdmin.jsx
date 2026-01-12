@@ -1,29 +1,33 @@
 import React, { useEffect, useState } from "react";
 import axiosInstance from "../utils/axiosInstance";
-import { useToast } from "../context/ToastContext"; // optional, falls back to alert
+import { useToast } from "../context/ToastContext";
 
 const LabeledInput = ({ label, name, value, onChange, placeholder }) => (
   <label className="block">
-    <div className="text-sm text-gray-600 mb-1">{label}</div>
+    <div className="text-sm text-gray-600 dark:text-gray-300 mb-1">
+      {label}
+    </div>
     <input
       name={name}
       value={value || ""}
       onChange={onChange}
       placeholder={placeholder}
-      className="w-full p-2 border rounded"
+      className="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white"
     />
   </label>
 );
 
 const LabeledTextArea = ({ label, name, value, onChange, rows = 3 }) => (
   <label className="block">
-    <div className="text-sm text-gray-600 mb-1">{label}</div>
+    <div className="text-sm text-gray-600 dark:text-gray-300 mb-1">
+      {label}
+    </div>
     <textarea
       name={name}
       value={value || ""}
       onChange={onChange}
       rows={rows}
-      className="w-full p-2 border rounded"
+      className="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white"
     />
   </label>
 );
@@ -89,32 +93,10 @@ export default function AboutAdmin() {
   const handleChange = (e) =>
     setAbout((prev) => ({ ...prev, [e.target.name]: e.target.value }));
 
-  // const handleUpload = async (e, field = "profileImage") => {
-  //   const file = e.target.files?.[0];
-  //   if (!file) return;
-  //   const fd = new FormData();
-  //   // Use a generic key 'file' for all uploads
-  //   fd.append("file", file);
-  //   try {
-  //     setLoading(true);
-  //     const res = await axios.post("/upload", fd, { headers: { "Content-Type": "multipart/form-data" } });
-  //     const url = res.data?.url ?? res.data?.secure_url ?? res.data;
-  //     setAbout((prev) => ({ ...prev, [field]: url }));
-  //     push({ type: "success", message: `${field === 'profileImage' ? 'Image' : 'File'} uploaded` });
-  //   } catch (err) {
-  //     console.error("upload", err);
-  //     push({ type: "error", message: "Upload failed" });
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
   const handleUpload = async (e, field = "profileImage") => {
     const file = e.target.files?.[0];
     if (!file) return;
     const fd = new FormData();
-
-    // === FIX IS HERE ===
-    // Yahaan bhi 'file' ka istemal karein
     fd.append("file", file);
 
     try {
@@ -135,13 +117,19 @@ export default function AboutAdmin() {
       setLoading(false);
     }
   };
+
   const addAchievement = () => {
     if (!newAchievement.metric && !newAchievement.description) return;
     setAbout((prev) => ({
       ...prev,
       achievements: [...(prev.achievements || []), { ...newAchievement }],
     }));
-    setNewAchievement({ metric: "", description: "", project: "", year: "" });
+    setNewAchievement({
+      metric: "",
+      description: "",
+      project: "",
+      year: "",
+    });
   };
 
   const removeAchievement = (idx) => {
@@ -194,11 +182,14 @@ export default function AboutAdmin() {
     }
   };
 
+  const inputClass =
+    "p-2 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white";
+
   return (
-    <div className="p-6 max-w-5xl mx-auto">
+    <div className="p-6 max-w-5xl mx-auto text-gray-900 dark:text-white">
       <h1 className="text-2xl font-bold mb-4">About — Admin</h1>
 
-      <div className="bg-white dark:bg-gray-800 shadow rounded p-6 space-y-6">
+      <div className="bg-white dark:bg-gray-800 shadow rounded p-6 space-y-6 transition-colors">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="col-span-2 space-y-3">
             <LabeledInput
@@ -240,11 +231,14 @@ export default function AboutAdmin() {
 
           <div className="space-y-3">
             <div>
-              <div className="text-sm text-gray-600 mb-1">Profile Image</div>
+              <div className="text-sm text-gray-600 dark:text-gray-300 mb-1">
+                Profile Image
+              </div>
               <input
                 type="file"
                 accept="image/*"
                 onChange={(e) => handleUpload(e, "profileImage")}
+                className="text-sm text-gray-500 dark:text-gray-400"
               />
               {about.profileImage && (
                 <img
@@ -276,14 +270,16 @@ export default function AboutAdmin() {
               onChange={handleChange}
               placeholder="City, Country"
             />
-            <div className="p-2 border rounded">
-              <label className="text-sm text-gray-600 mb-1">Resume</label>
+            <div className="p-2 border rounded dark:border-gray-600">
+              <label className="text-sm text-gray-600 dark:text-gray-300 mb-1">
+                Resume
+              </label>
               <div className="flex items-center gap-4 mt-1">
-                {/* Pass 'resumeLink' as the field name to handleUpload */}
                 <input
                   type="file"
                   accept=".pdf"
                   onChange={(e) => handleUpload(e, "resumeLink")}
+                  className="text-sm text-gray-500 dark:text-gray-400"
                 />
                 {about.resumeLink && (
                   <a
@@ -301,7 +297,7 @@ export default function AboutAdmin() {
                 placeholder="Or paste direct URL"
                 value={about.resumeLink}
                 onChange={handleChange}
-                className="p-2 border rounded w-full mt-2"
+                className={`${inputClass} w-full mt-2`}
               />
             </div>
           </div>
@@ -348,7 +344,9 @@ export default function AboutAdmin() {
 
         {/* Experience numbers */}
         <div>
-          <h3 className="font-semibold mb-2">Experience Summary</h3>
+          <h3 className="font-semibold mb-2 text-gray-900 dark:text-white">
+            Experience Summary
+          </h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             <input
               type="number"
@@ -364,7 +362,7 @@ export default function AboutAdmin() {
                   },
                 }))
               }
-              className="p-2 border rounded"
+              className={inputClass}
             />
             <input
               type="number"
@@ -380,7 +378,7 @@ export default function AboutAdmin() {
                   },
                 }))
               }
-              className="p-2 border rounded"
+              className={inputClass}
             />
             <input
               type="number"
@@ -396,7 +394,7 @@ export default function AboutAdmin() {
                   },
                 }))
               }
-              className="p-2 border rounded"
+              className={inputClass}
             />
             <input
               type="number"
@@ -412,27 +410,33 @@ export default function AboutAdmin() {
                   },
                 }))
               }
-              className="p-2 border rounded"
+              className={inputClass}
             />
           </div>
         </div>
 
         {/* Achievements */}
         <div>
-          <h3 className="font-semibold mb-2">Achievements</h3>
+          <h3 className="font-semibold mb-2 text-gray-900 dark:text-white">
+            Achievements
+          </h3>
           <div className="space-y-2 mb-3">
             {about.achievements?.map((a, i) => (
               <div
                 key={i}
-                className="flex items-start justify-between gap-3 bg-gray-50 p-3 rounded"
+                className="flex items-start justify-between gap-3 bg-gray-50 dark:bg-gray-700 p-3 rounded"
               >
                 <div>
-                  <div className="font-medium">{a.metric}</div>
-                  <div className="text-sm">{a.description}</div>
+                  <div className="font-medium text-gray-900 dark:text-white">
+                    {a.metric}
+                  </div>
+                  <div className="text-sm text-gray-600 dark:text-gray-300">
+                    {a.description}
+                  </div>
                 </div>
                 <div className="space-x-2">
                   <button
-                    className="text-red-500"
+                    className="text-red-500 hover:text-red-400"
                     onClick={() => removeAchievement(i)}
                   >
                     Remove
@@ -447,17 +451,23 @@ export default function AboutAdmin() {
               placeholder="metric (e.g., 40% perf)"
               value={newAchievement.metric}
               onChange={(e) =>
-                setNewAchievement((p) => ({ ...p, metric: e.target.value }))
+                setNewAchievement((p) => ({
+                  ...p,
+                  metric: e.target.value,
+                }))
               }
-              className="p-2 border rounded"
+              className={inputClass}
             />
             <input
               placeholder="project"
               value={newAchievement.project}
               onChange={(e) =>
-                setNewAchievement((p) => ({ ...p, project: e.target.value }))
+                setNewAchievement((p) => ({
+                  ...p,
+                  project: e.target.value,
+                }))
               }
-              className="p-2 border rounded"
+              className={inputClass}
             />
             <input
               placeholder="year"
@@ -465,7 +475,7 @@ export default function AboutAdmin() {
               onChange={(e) =>
                 setNewAchievement((p) => ({ ...p, year: e.target.value }))
               }
-              className="p-2 border rounded"
+              className={inputClass}
             />
             <input
               placeholder="short desc"
@@ -476,12 +486,12 @@ export default function AboutAdmin() {
                   description: e.target.value,
                 }))
               }
-              className="p-2 border rounded"
+              className={inputClass}
             />
             <div className="md:col-span-4">
               <button
                 onClick={addAchievement}
-                className="mt-2 px-4 py-2 bg-indigo-600 text-white rounded"
+                className="mt-2 px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
               >
                 Add Achievement
               </button>
@@ -491,17 +501,19 @@ export default function AboutAdmin() {
 
         {/* Industries Section */}
         <div>
-          <h3 className="font-semibold mb-2">Industries</h3>
+          <h3 className="font-semibold mb-2 text-gray-900 dark:text-white">
+            Industries
+          </h3>
           <div className="flex gap-2 mb-3">
             <input
               placeholder="e.g., Fintech, Healthcare"
               value={newIndustry}
               onChange={(e) => setNewIndustry(e.target.value)}
-              className="flex-grow p-2 border rounded"
+              className={`${inputClass} flex-grow mb-0`}
             />
             <button
               onClick={addIndustry}
-              className="px-4 py-2 bg-indigo-600 text-white rounded"
+              className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
             >
               Add
             </button>
@@ -510,12 +522,12 @@ export default function AboutAdmin() {
             {(about.industries || []).map((industry, i) => (
               <div
                 key={i}
-                className="flex items-center gap-2 bg-gray-100 dark:bg-gray-700 rounded-full px-3 py-1 text-sm"
+                className="flex items-center gap-2 bg-gray-100 dark:bg-gray-700 rounded-full px-3 py-1 text-sm text-gray-800 dark:text-gray-200"
               >
                 {industry}
                 <button
                   onClick={() => removeIndustry(i)}
-                  className="text-red-500 hover:text-red-700"
+                  className="text-red-500 hover:text-red-400 font-bold"
                 >
                   &times;
                 </button>
@@ -526,14 +538,16 @@ export default function AboutAdmin() {
 
         {/* Expertise buckets */}
         <div>
-          <h3 className="font-semibold mb-2">Expertise</h3>
+          <h3 className="font-semibold mb-2 text-gray-900 dark:text-white">
+            Expertise
+          </h3>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-3">
             <select
               value={newExpertise.bucket}
               onChange={(e) =>
                 setNewExpertise((p) => ({ ...p, bucket: e.target.value }))
               }
-              className="p-2 border rounded"
+              className={inputClass}
             >
               <option value="primary">Primary</option>
               <option value="secondary">Secondary</option>
@@ -546,11 +560,11 @@ export default function AboutAdmin() {
               onChange={(e) =>
                 setNewExpertise((p) => ({ ...p, value: e.target.value }))
               }
-              className="p-2 border rounded"
+              className={inputClass}
             />
             <button
               onClick={addExpertiseValue}
-              className="px-3 py-2 bg-indigo-600 text-white rounded"
+              className="px-3 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 h-[42px]"
             >
               Add
             </button>
@@ -558,9 +572,11 @@ export default function AboutAdmin() {
 
           <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
             {["primary", "secondary", "tools", "methodologies"].map((k) => (
-              <div key={k} className="p-3 bg-gray-50 rounded">
-                <div className="font-semibold capitalize">{k}</div>
-                <div className="mt-2 text-sm">
+              <div key={k} className="p-3 bg-gray-50 dark:bg-gray-700 rounded">
+                <div className="font-semibold capitalize text-gray-900 dark:text-white">
+                  {k}
+                </div>
+                <div className="mt-2 text-sm text-gray-600 dark:text-gray-300">
                   {(about.expertise?.[k] || []).join(", ")}
                 </div>
               </div>
@@ -572,7 +588,7 @@ export default function AboutAdmin() {
           <button
             onClick={handleSave}
             disabled={loading}
-            className="px-5 py-2 bg-green-600 text-white rounded"
+            className="px-5 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50"
           >
             {loading ? "Saving..." : "Save About"}
           </button>

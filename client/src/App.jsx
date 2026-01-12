@@ -12,6 +12,7 @@ import Skills from "./pages/Skills";
 import Education from "./pages/PublicEducation.jsx";
 import Projects from "./pages/PublicProjects.jsx"; // Changed
 import Experience from "./pages/PublicExperience.jsx";
+import PublicBlogs from "./pages/PublicBlogs.jsx"
 import Contact from "./pages/Contact.jsx";
 import NotFound from "./pages/NotFound";
 
@@ -24,6 +25,7 @@ import ProjectsAdmin from "./admin/ProjectsAdmin";
 import ExperienceAdmin from "./admin/ExperienceAdmin";
 import EducationAdmin from "./admin/EducationAdmin";
 import SkillsAdmin from "./admin/SkillsAdmin";
+import BlogsAdmin from "./admin/BlogsAdmin.jsx"
 import CertificatesAdmin from "./admin/CertificatesAdmin";
 import AdminDashboard from "./admin/AdminDashboard";
 import AboutAdmin from "./admin/aboutAdmin.jsx";
@@ -60,6 +62,7 @@ const App = () => {
             <Route path="/projects" element={<Projects />} />
             <Route path="/certificates" element={<Certificates />} />
             <Route path="/experience" element={<Experience />} />
+            <Route path="/blogs" element={<PublicBlogs />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="*" element={<NotFound />} />
           </Route>
@@ -75,6 +78,7 @@ const App = () => {
             <Route path="skills" element={<SkillsAdmin />} />
             <Route path="certificates" element={<CertificatesAdmin />} />
             <Route path="about" element={<AboutAdmin />} />
+            <Route path="blogs" element={<BlogsAdmin />} />
           </Route>
 
           <Route path="/admin/debug" element={<AdminDebug />} />

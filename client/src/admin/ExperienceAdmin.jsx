@@ -4,10 +4,16 @@ import { useToast } from "../context/ToastContext";
 
 export default function ExperienceAdmin() {
   const toast = useToast?.();
-  const push = (opts) => (toast?.pushToast ? toast.pushToast(opts) : alert(opts.message));
+  const push = (opts) =>
+    toast?.pushToast ? toast.pushToast(opts) : alert(opts.message);
 
   const [experience, setExperience] = useState([]);
-  const [form, setForm] = useState({ role: "", company: "", period: "", description: "" });
+  const [form, setForm] = useState({
+    role: "",
+    company: "",
+    period: "",
+    description: "",
+  });
   const [editId, setEditId] = useState(null);
   const [loading, setLoading] = useState(false);
 
@@ -21,10 +27,13 @@ export default function ExperienceAdmin() {
     }
   };
 
-  useEffect(() => { fetch(); }, []);
+  useEffect(() => {
+    fetch();
+  }, []);
 
   const handleSubmit = async () => {
-    if (!form.role || !form.company) return push({ type: "error", message: "Role & Company required" });
+    if (!form.role || !form.company)
+      return push({ type: "error", message: "Role & Company required" });
     setLoading(true);
     try {
       if (editId) {
@@ -59,35 +68,99 @@ export default function ExperienceAdmin() {
 
   const handleEdit = (e) => {
     setEditId(e._id);
-    setForm({ role: e.role || "", company: e.company || "", period: e.period || "", description: e.description || "" });
+    setForm({
+      role: e.role || "",
+      company: e.company || "",
+      period: e.period || "",
+      description: e.description || "",
+    });
   };
 
+  const inputClass =
+    "p-2 border rounded mb-2 w-full dark:bg-gray-700 dark:border-gray-600 dark:text-white";
+
   return (
-    <div className="p-6 max-w-4xl mx-auto">
+    <div className="p-6 max-w-4xl mx-auto text-gray-900 dark:text-white">
       <h2 className="text-2xl font-bold mb-4">Experience</h2>
 
-      <div className="bg-white p-4 rounded shadow mb-6">
-        <input placeholder="Role" className="p-2 border rounded mb-2 w-full" value={form.role} onChange={(e) => setForm((p) => ({ ...p, role: e.target.value }))} />
-        <input placeholder="Company" className="p-2 border rounded mb-2 w-full" value={form.company} onChange={(e) => setForm((p) => ({ ...p, company: e.target.value }))} />
-        <input placeholder="Period" className="p-2 border rounded mb-2 w-full" value={form.period} onChange={(e) => setForm((p) => ({ ...p, period: e.target.value }))} />
-        <textarea placeholder="Description" className="p-2 border rounded mb-2 w-full" rows={3} value={form.description} onChange={(e) => setForm((p) => ({ ...p, description: e.target.value }))} />
+      <div className="bg-white dark:bg-gray-800 p-4 rounded shadow mb-6 transition-colors">
+        <input
+          placeholder="Role"
+          className={inputClass}
+          value={form.role}
+          onChange={(e) => setForm((p) => ({ ...p, role: e.target.value }))}
+        />
+        <input
+          placeholder="Company"
+          className={inputClass}
+          value={form.company}
+          onChange={(e) => setForm((p) => ({ ...p, company: e.target.value }))}
+        />
+        <input
+          placeholder="Period"
+          className={inputClass}
+          value={form.period}
+          onChange={(e) => setForm((p) => ({ ...p, period: e.target.value }))}
+        />
+        <textarea
+          placeholder="Description"
+          className={inputClass}
+          rows={3}
+          value={form.description}
+          onChange={(e) =>
+            setForm((p) => ({ ...p, description: e.target.value }))
+          }
+        />
         <div className="flex gap-2">
-          <button onClick={handleSubmit} className="px-4 py-2 bg-indigo-600 text-white rounded">{editId ? "Update" : "Add"}</button>
-          <button onClick={() => { setForm({ role: "", company: "", period: "", description: "" }); setEditId(null); }} className="px-4 py-2 border rounded">Reset</button>
+          <button
+            onClick={handleSubmit}
+            className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 disabled:opacity-50"
+            disabled={loading}
+          >
+            {editId ? "Update" : "Add"}
+          </button>
+          <button
+            onClick={() => {
+              setForm({ role: "", company: "", period: "", description: "" });
+              setEditId(null);
+            }}
+            className="px-4 py-2 border rounded hover:bg-gray-100 dark:hover:bg-gray-700 dark:border-gray-600"
+          >
+            Reset
+          </button>
         </div>
       </div>
 
       <div className="space-y-3">
         {experience.map((e) => (
-          <div key={e._id} className="bg-gray-50 p-3 rounded flex justify-between items-start">
+          <div
+            key={e._id}
+            className="bg-gray-50 dark:bg-gray-700 p-3 rounded flex justify-between items-start shadow-sm"
+          >
             <div>
-              <div className="font-semibold">{e.role} @ {e.company}</div>
-              <div className="text-sm">{e.period}</div>
-              <div className="mt-2">{e.description}</div>
+              <div className="font-semibold text-gray-900 dark:text-white">
+                {e.role} @ {e.company}
+              </div>
+              <div className="text-sm text-gray-600 dark:text-gray-300">
+                {e.period}
+              </div>
+              <div className="mt-2 text-gray-700 dark:text-gray-200">
+                {e.description}
+              </div>
             </div>
-            <div className="space-x-2">
-              <button onClick={() => handleEdit(e)} className="text-blue-500">Edit</button>
-              <button onClick={() => handleDelete(e._id)} className="text-red-500">Delete</button>
+            <div className="space-x-2 shrink-0">
+              <button
+                onClick={() => handleEdit(e)}
+                className="text-blue-500 hover:text-blue-400 font-medium"
+              >
+                Edit
+              </button>
+              <button
+                onClick={() => handleDelete(e._id)}
+                className="text-red-500 hover:text-red-400 font-medium"
+              >
+                Delete
+              </button>
             </div>
           </div>
         ))}

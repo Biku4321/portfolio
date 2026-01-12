@@ -8,6 +8,7 @@ const endpoints = [
   "/skills",
   "/certificates",
   "/about",
+  "/blogs",
   "/admin/me",
 ];
 

@@ -12,7 +12,7 @@ import {
   Instagram,
   Briefcase,
   Users,
-  Award,
+  Award, // Note: Award import hai par niche use nahi ho raha, but rehne diya
   Star,
   Layers,
   Settings,
@@ -36,7 +36,7 @@ const StatCard = ({ icon, value, label }) => (
 
 const ExpertiseCard = ({ title, items }) => (
   <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
-    <h3 className="text-xl font-semibold mb-3 capitalize flex items-center gap-2">
+    <h3 className="text-xl font-semibold mb-3 capitalize flex items-center gap-2 text-gray-900 dark:text-white">
       {
         {
           primary: <Star className="text-yellow-500" />,
@@ -66,7 +66,6 @@ const PublicAbout = () => {
   useEffect(() => {
     axiosInstance
       .get("/about")
-
       .then((res) => setData(res.data?.data ?? res.data))
       .catch((err) => console.error("Failed to load about data", err));
   }, []);
@@ -77,6 +76,12 @@ const PublicAbout = () => {
         Loading...
       </div>
     );
+
+  // --- FIX: Ensure Resume URL is HTTPS ---
+  // Agar URL 'http' hai to use 'https' bana dein taaki secure site par PDF block na ho
+  const resumeUrl = data.resumeLink 
+    ? (data.resumeLink.startsWith("http:") ? data.resumeLink.replace("http:", "https:") : data.resumeLink)
+    : null;
 
   return (
     <div className="p-6 md:p-12 max-w-6xl mx-auto text-gray-900 dark:text-white">
@@ -135,7 +140,7 @@ const PublicAbout = () => {
         <div className="lg:col-span-2 space-y-8">
           {/* --- BIO & OBJECTIVE --- */}
           {data.bio && (
-            <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow">
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow transition-colors">
               <h2 className="text-2xl font-semibold mb-3">About Me</h2>
               <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
                 {data.bio}
@@ -144,7 +149,7 @@ const PublicAbout = () => {
           )}
 
           {data.objective && (
-            <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow">
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow transition-colors">
               <h2 className="text-2xl font-semibold mb-3">Career Objective</h2>
               <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
                 {data.objective}
@@ -154,14 +159,14 @@ const PublicAbout = () => {
 
           {/* --- ACHIEVEMENTS --- */}
           {data.achievements && data.achievements.length > 0 && (
-            <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow">
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow transition-colors">
               <h2 className="text-2xl font-semibold mb-4">Key Achievements</h2>
               <ul className="space-y-3">
                 {data.achievements.map((ach, i) => (
                   <li key={i} className="flex items-start gap-3">
-                    <Trophy className="w-5 h-5 mt-1 text-amber-500" />
+                    <Trophy className="w-5 h-5 mt-1 text-amber-500 shrink-0" />
                     <div>
-                      <span className="font-semibold">{ach.metric}</span>
+                      <span className="font-semibold block">{ach.metric}</span>
                       <p className="text-sm text-gray-600 dark:text-gray-400">
                         {ach.description} ({ach.project} - {ach.year})
                       </p>
@@ -175,17 +180,17 @@ const PublicAbout = () => {
 
         <div className="space-y-8">
           {/* --- CONTACT & SOCIALS --- */}
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow transition-colors">
             <h2 className="text-2xl font-semibold mb-4">Contact & Social</h2>
             <ul className="space-y-3 text-gray-700 dark:text-gray-300">
-              <li className="flex items-center gap-2">
-                <Mail className="w-5 h-5" /> {data.email}
+              <li className="flex items-center gap-2 break-all">
+                <Mail className="w-5 h-5 shrink-0" /> {data.email}
               </li>
               <li className="flex items-center gap-2">
-                <Phone className="w-5 h-5" /> {data.phone}
+                <Phone className="w-5 h-5 shrink-0" /> {data.phone}
               </li>
               <li className="flex items-center gap-2">
-                <MapPin className="w-5 h-5" /> {data.location}
+                <MapPin className="w-5 h-5 shrink-0" /> {data.location}
               </li>
             </ul>
             <div className="flex flex-wrap gap-4 mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
@@ -244,7 +249,7 @@ const PublicAbout = () => {
 
           {/* --- INDUSTRIES --- */}
           {data.industries && data.industries.length > 0 && (
-            <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow">
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow transition-colors">
               <h2 className="text-2xl font-semibold mb-3">Industries</h2>
               <div className="flex flex-wrap gap-2">
                 {data.industries.map((industry, i) => (
@@ -278,12 +283,12 @@ const PublicAbout = () => {
       )}
 
       {/* --- RESUME BUTTON --- */}
-      {data.resumeLink && (
+      {resumeUrl && (
         <div className="text-center mt-12">
           <a
-            href={data.resumeLink}
+            href={resumeUrl}
             target="_blank"
-            rel="noreferrer"
+            rel="noopener noreferrer"
             className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-8 py-3 rounded-lg shadow-lg transition-transform transform hover:scale-105"
           >
             <FileText className="w-5 h-5" />

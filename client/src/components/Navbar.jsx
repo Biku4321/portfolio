@@ -17,6 +17,7 @@ const Navbar = ({ darkMode, setDarkMode }) => {
     { name: "Experience", path: "/experience" },
     { name: "Certificates", path: "/certificates" }, // ✅ added
     { name: "Contact", path: "/contact" },
+    { name: "Blogs", path: "/blogs" },
   ];
 
   const adminLink = { name: "Admin", path: "/admin/login", icon: Settings };

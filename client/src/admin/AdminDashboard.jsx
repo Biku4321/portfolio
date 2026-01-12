@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import axiosInstance from "../utils/axiosInstance"; // API calls ke liye axiosInstance import kiya
 import {
   BarChart3,
   BookOpen,
@@ -9,17 +10,110 @@ import {
   User,
 } from "lucide-react";
 
-const stats = [
-  { name: "About", icon: User, color: "bg-blue-100 text-blue-600", value: "Edit", path: "/admin/about" },
-  { name: "Skills", icon: Code, color: "bg-green-100 text-green-600", value: "12+", path: "/admin/skills" },
-  { name: "Projects", icon: BarChart3, color: "bg-purple-100 text-purple-600", value: "6", path: "/admin/projects" },
-  { name: "Experience", icon: Briefcase, color: "bg-orange-100 text-orange-600", value: "3", path: "/admin/experience" },
-  { name: "Certificates", icon: FileBadge, color: "bg-pink-100 text-pink-600", value: "8", path: "/admin/certificates" },
-  { name: "Education", icon: BookOpen, color: "bg-indigo-100 text-indigo-600", value: "2", path: "/admin/education" },
-];
-
 const AdminDashboard = () => {
   const navigate = useNavigate();
+  
+  // State to store real counts from backend
+  const [counts, setCounts] = useState({
+    skills: 0,
+    projects: 0,
+    experience: 0,
+    certificates: 0,
+    education: 0,
+  });
+
+  const [loading, setLoading] = useState(true);
+
+  // Data fetching logic
+  useEffect(() => {
+    const fetchDashboardStats = async () => {
+      try {
+        // Parallel requests to fetch all lists
+        const [skillsRes, projectsRes, expRes, certRes, eduRes,blogRes] = await Promise.all([
+          axiosInstance.get("/skills"),
+          axiosInstance.get("/projects"),
+          axiosInstance.get("/experience"),
+          axiosInstance.get("/certificates"),
+          axiosInstance.get("/education"),
+          axiosInstance.get("/blogs"),
+        ]);
+
+        // Helper function to safely get array length
+        const getCount = (res) => {
+            const data = res.data?.data || res.data;
+            return Array.isArray(data) ? data.length : 0;
+        };
+
+        setCounts({
+          skills: getCount(skillsRes),
+          projects: getCount(projectsRes),
+          experience: getCount(expRes),
+          certificates: getCount(certRes),
+          education: getCount(eduRes),
+          blogs: getCount(blogRes),
+        });
+      } catch (error) {
+        console.error("Error fetching dashboard stats:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDashboardStats();
+  }, []);
+
+  // Stats array now uses the state 'counts'
+  const stats = [
+    { 
+      name: "About", 
+      icon: User, 
+      color: "bg-blue-100 text-blue-600", 
+      value: "Edit", // About me koi count nahi hota, isliye fixed text
+      path: "/admin/about" 
+    },
+    { 
+      name: "Skills", 
+      icon: Code, 
+      color: "bg-green-100 text-green-600", 
+      value: loading ? "..." : counts.skills, 
+      path: "/admin/skills" 
+    },
+    { 
+      name: "Projects", 
+      icon: BarChart3, 
+      color: "bg-purple-100 text-purple-600", 
+      value: loading ? "..." : counts.projects, 
+      path: "/admin/projects" 
+    },
+    { 
+      name: "Experience", 
+      icon: Briefcase, 
+      color: "bg-orange-100 text-orange-600", 
+      value: loading ? "..." : counts.experience, 
+      path: "/admin/experience" 
+    },
+    { 
+      name: "Certificates", 
+      icon: FileBadge, 
+      color: "bg-pink-100 text-pink-600", 
+      value: loading ? "..." : counts.certificates, 
+      path: "/admin/certificates" 
+    },
+    { 
+      name: "Education", 
+      icon: BookOpen, 
+      color: "bg-indigo-100 text-indigo-600", 
+      value: loading ? "..." : counts.education, 
+      path: "/admin/education" 
+    },
+    { 
+      name: "Blogs", 
+      icon: BookOpen, 
+      color: "bg-indigo-100 text-indigo-600", 
+      value: loading ? "..." : counts.education, 
+      path: "/admin/blogs" 
+    },
+  ];
 
   return (
     <div className="p-6 md:p-10 max-w-7xl mx-auto">
@@ -69,6 +163,7 @@ const AdminDashboard = () => {
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-6">
           <h2 className="text-xl font-semibold mb-4">Recent Activity</h2>
           <ul className="text-gray-700 dark:text-gray-300 space-y-2">
+            {/* Note: Recent activity abhi bhi static hai, ise dynamic banane ke liye backend se 'activity logs' lana padega */}
             <li>✅ Added a new project "Portfolio Website"</li>
             <li>🎓 Updated education details</li>
             <li>🏆 Uploaded new certificate "React Advanced"</li>
@@ -99,9 +194,15 @@ const AdminDashboard = () => {
             </button>
             <button
               onClick={() => navigate("/admin/about")}
-              className="py-2 px-3 bg-red-500 text-white rounded-lg"
+              className="py-2 px-3 bg-pink-500 text-white rounded-lg"
             >
               Edit About
+            </button>
+            <button
+              onClick={() => navigate("/admin/blogs")}
+              className="py-2 px-3 bg-red-500 text-white rounded-lg"
+            >
+              Edit Blogs
             </button>
           </div>
         </div>

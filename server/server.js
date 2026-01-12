@@ -12,9 +12,10 @@ import skillsRoutes from "./routes/skillsRoutes.js";
 import certificateRoutes from "./routes/certificateRoutes.js";
 import experienceRoutes from "./routes/experienceRoutes.js";
 import adminAuthRoutes from "./routes/adminRoutes.js";
-import contactRoutes from "./routes/contactRoutes.js";
+//import contactRoutes from "./routes/contactRoutes.js";
 import educationRoutes from "./routes/educationRoute.js";
 import aboutRoutes from "./routes/aboutRoutes.js";
+import blogRoutes from "./routes/blogRoutes.js";
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -69,7 +70,8 @@ app.use("/api/certificates", certificateRoutes);
 app.use("/api/experience", experienceRoutes);
 app.use("/api/skills", skillsRoutes);
 app.use("/api/projects", projectRoutes);
-app.use("/api/contact", contactRoutes);
+app.use("/api/blogs", blogRoutes);
+//app.use("/api/contact", contactRoutes);
 
 // ✅ Health check
 app.get("/", (req, res) => {

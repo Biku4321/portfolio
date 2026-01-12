@@ -36,6 +36,7 @@ const decoded = token ? jwtDecode(token) : null;
           <NavLink to="/admin/certificates" className={linkClasses}>Certificates</NavLink>
           <NavLink to="/admin/experience" className={linkClasses}>Experience</NavLink>
           <NavLink to="/admin/projects" className={linkClasses}>Projects</NavLink>
+          <NavLink to="/admin/blogs" className={linkClasses}>Blogs</NavLink>
         </nav>
       </div>
 

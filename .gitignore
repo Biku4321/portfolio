@@ -5,3 +5,5 @@ build
 .DS_Store
 insertAdmin.js
 .github
+contactRoutes.js
+contactController.js
