@@ -16,6 +16,8 @@ import adminAuthRoutes from "./routes/adminRoutes.js";
 import educationRoutes from "./routes/educationRoute.js";
 import aboutRoutes from "./routes/aboutRoutes.js";
 import blogRoutes from "./routes/blogRoutes.js";
+import routers from "./routes/hackathonRoutes.js";
+
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -70,6 +72,7 @@ app.use("/api/certificates", certificateRoutes);
 app.use("/api/experience", experienceRoutes);
 app.use("/api/skills", skillsRoutes);
 app.use("/api/projects", projectRoutes);
+app.use("/api/routers", projectRoutes);
 app.use("/api/blogs", blogRoutes);
 //app.use("/api/contact", contactRoutes);
 

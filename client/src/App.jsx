@@ -14,6 +14,7 @@ import Projects from "./pages/PublicProjects.jsx"; // Changed
 import Experience from "./pages/PublicExperience.jsx";
 import PublicBlogs from "./pages/PublicBlogs.jsx"
 import Contact from "./pages/Contact.jsx";
+import PublicHackathons from "./pages/PublicHackathons.jsx";
 import NotFound from "./pages/NotFound";
 
 // Admin
@@ -29,6 +30,7 @@ import BlogsAdmin from "./admin/BlogsAdmin.jsx"
 import CertificatesAdmin from "./admin/CertificatesAdmin";
 import AdminDashboard from "./admin/AdminDashboard";
 import AboutAdmin from "./admin/aboutAdmin.jsx";
+import HackathonsAdmin from "./admin/HackathonsAdmin.jsx";
 
 const App = () => {
   const [darkMode, setDarkMode] = useState(() => {
@@ -62,6 +64,7 @@ const App = () => {
             <Route path="/projects" element={<Projects />} />
             <Route path="/certificates" element={<Certificates />} />
             <Route path="/experience" element={<Experience />} />
+             <Route path="/hackathons"   element={<PublicHackathons />} />
             <Route path="/blogs" element={<PublicBlogs />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="*" element={<NotFound />} />
@@ -79,6 +82,7 @@ const App = () => {
             <Route path="certificates" element={<CertificatesAdmin />} />
             <Route path="about" element={<AboutAdmin />} />
             <Route path="blogs" element={<BlogsAdmin />} />
+            <Route path="hackathons"   element={<HackathonsAdmin />} />
           </Route>
 
           <Route path="/admin/debug" element={<AdminDebug />} />

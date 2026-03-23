@@ -1,35 +1,25 @@
 /** @type {import('tailwindcss').Config} */
-// export default {
-//   content: ["./src/**/*.{js,jsx,ts,tsx}"],
-
-//   darkMode: 'class',
-
-//   safelist: [
-//     'dark',
-//     'dark:bg-gray-900',
-//     'dark:bg-black',
-//     'dark:text-white',
-//     'dark:bg-gray-700'
-//   ],
-
-//   theme: {
-//     extend: {},
-//   },
-//   plugins: [],
-// };
 export default {
-  darkMode: 'class', // ✅ required
-  content: [
-    "./index.html",
-    "./src/**/*.{js,ts,jsx,tsx}", // ✅ this must match your file structure
-  ],
+  content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
+  darkMode: "class",
   theme: {
-  extend: {
-    fontFamily: {
-      sans: ['Inter', 'sans-serif'],
+    extend: {
+      fontFamily: {
+        display: ["Syne", "sans-serif"],
+        body:    ["DM Sans", "system-ui", "sans-serif"],
+      },
+      colors: {
+        accent:  "#7c5cfc",
+        accent2: "#c084fc",
+        accent3: "#06d6a0",
+      },
+      animation: {
+        "spin-slow": "spin 8s linear infinite",
+      },
+      backgroundImage: {
+        "grad-purple": "linear-gradient(120deg, #7c5cfc, #c084fc 50%, #06d6a0)",
+      },
     },
   },
-},
-
   plugins: [],
-}
+};
