@@ -1,205 +1,148 @@
 import React, { useEffect, useState } from "react";
 import axiosInstance from "../utils/axiosInstance";
 import { useToast } from "../context/ToastContext";
-import { Pencil, Trash2, X } from "lucide-react"; // Icons for better UI
+import { motion, AnimatePresence } from "framer-motion";
+import { Plus, Pencil, Trash2, X, Save, Loader2, BookOpen, Upload } from "lucide-react";
+
+const EMPTY = { title: "", content: "", image: "", tags: "" };
 
 export default function BlogsAdmin() {
   const toast = useToast?.();
-  const push = (opts) =>
-    toast?.pushToast ? toast.pushToast(opts) : alert(opts.message);
+  const push = o => toast?.pushToast ? toast.pushToast(o) : alert(o.message);
 
-  const [blogs, setBlogs] = useState([]);
-  const [form, setForm] = useState({
-    title: "",
-    content: "",
-    image: "",
-    tags: "",
-  });
-  const [editId, setEditId] = useState(null);
+  const [blogs, setBlogs]     = useState([]);
+  const [form, setForm]       = useState(EMPTY);
+  const [editId, setEditId]   = useState(null);
   const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [modal, setModal]     = useState(false);
 
   const fetchBlogs = async () => {
     try {
       const res = await axiosInstance.get("/blogs");
       setBlogs(res.data?.data || []);
-    } catch (err) {
-      console.error(err);
-    }
+    } catch (err) { console.error(err); }
+  };
+  useEffect(() => { fetchBlogs(); }, []);
+
+  const reset = () => { setForm(EMPTY); setEditId(null); };
+  const openCreate = () => { reset(); setModal(true); };
+  const openEdit = b => {
+    setEditId(b._id);
+    setForm({ title: b.title || "", content: b.content || "", image: b.image || "", tags: b.tags?.join(", ") || "" });
+    setModal(true);
   };
 
-  useEffect(() => {
-    fetchBlogs();
-  }, []);
-
-  const resetForm = () => {
-    setForm({ title: "", content: "", image: "", tags: "" });
-    setEditId(null);
-  };
-
-  const handleEdit = (blog) => {
-    setEditId(blog._id);
-    setForm({
-      title: blog.title,
-      content: blog.content,
-      image: blog.image || "",
-      tags: blog.tags ? blog.tags.join(", ") : "", // Array to String for input
-    });
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
-  const handleDelete = async (id) => {
-    if (!confirm("Are you sure you want to delete this blog?")) return;
+  const handleFile = async e => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const fd = new FormData();
+    fd.append("file", file);
+    setUploading(true);
     try {
-      await axiosInstance.delete(`/blogs/${id}`);
-      push({ type: "success", message: "Blog deleted successfully" });
-      fetchBlogs();
-    } catch (err) {
-      console.error(err);
-      push({ type: "error", message: "Failed to delete blog" });
-    }
+      const res = await axiosInstance.post("/upload", fd, { headers: { "Content-Type": "multipart/form-data" } });
+      const url = res.data?.url ?? res.data?.secure_url;
+      if (!url) throw new Error("No URL");
+      setForm(p => ({ ...p, image: url }));
+      push({ type: "success", message: "Image uploaded!" });
+    } catch { push({ type: "error", message: "Upload failed" }); }
+    finally { setUploading(false); e.target.value = ""; }
   };
 
-  const handleSubmit = async () => {
-    if (!form.title || !form.content)
-      return alert("Title and Content required");
+  const handleSubmit = async e => {
+    e?.preventDefault();
+    if (!form.title || !form.content) { push({ type: "error", message: "Title and Content required" }); return; }
     setLoading(true);
-
-    const payload = {
-      ...form,
-      tags: form.tags.split(",").map((t) => t.trim()), // String to Array
-    };
-
+    const payload = { ...form, tags: form.tags ? form.tags.split(",").map(t => t.trim()).filter(Boolean) : [] };
     try {
-      if (editId) {
-        // Update existing blog
-        await axiosInstance.put(`/blogs/${editId}`, payload);
-        push({ type: "success", message: "Blog Updated!" });
-      } else {
-        // Create new blog
-        await axiosInstance.post("/blogs", payload);
-        push({ type: "success", message: "Blog Published!" });
-      }
-      resetForm();
-      fetchBlogs();
-    } catch (err) {
-      console.error(err);
-      push({ type: "error", message: "Operation failed" });
-    } finally {
-      setLoading(false);
-    }
+      if (editId) { await axiosInstance.put(`/blogs/${editId}`, payload); push({ type: "success", message: "Updated!" }); }
+      else        { await axiosInstance.post("/blogs", payload);           push({ type: "success", message: "Published!" }); }
+      setModal(false); reset(); await fetchBlogs();
+    } catch { push({ type: "error", message: "Save failed" }); }
+    finally { setLoading(false); }
+  };
+
+  const handleDelete = async id => {
+    if (!confirm("Delete this blog?")) return;
+    try { await axiosInstance.delete(`/blogs/${id}`); push({ type: "success", message: "Deleted" }); await fetchBlogs(); }
+    catch { push({ type: "error", message: "Delete failed" }); }
   };
 
   return (
-    <div className="p-6 max-w-4xl mx-auto text-gray-900 dark:text-white">
-      <h2 className="text-2xl font-bold mb-4">
-        {editId ? "Edit Blog" : "Manage Blogs"}
-      </h2>
-
-      <div className="bg-white dark:bg-gray-800 p-4 rounded shadow mb-6 space-y-3 transition-colors">
-        <input
-          placeholder="Blog Title"
-          value={form.title}
-          onChange={(e) => setForm({ ...form, title: e.target.value })}
-          className="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-        />
-        <textarea
-          placeholder="Write your article (Markdown supported)..."
-          rows={6}
-          value={form.content}
-          onChange={(e) => setForm({ ...form, content: e.target.value })}
-          className="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-        />
-        <input
-          placeholder="Image URL"
-          value={form.image}
-          onChange={(e) => setForm({ ...form, image: e.target.value })}
-          className="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-        />
-        <input
-          placeholder="Tags (comma separated e.g. React, Tech)"
-          value={form.tags}
-          onChange={(e) => setForm({ ...form, tags: e.target.value })}
-          className="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-        />
-
-        <div className="flex gap-2">
-          <button
-            onClick={handleSubmit}
-            disabled={loading}
-            className={`px-4 py-2 text-white rounded flex items-center gap-2 ${
-              editId
-                ? "bg-indigo-600 hover:bg-indigo-700"
-                : "bg-green-600 hover:bg-green-700"
-            }`}
-          >
-            {loading ? (
-              "Processing..."
-            ) : editId ? (
-              <>Update Blog</>
-            ) : (
-              "Publish Blog"
-            )}
-          </button>
-
-          {editId && (
-            <button
-              onClick={resetForm}
-              className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
-            >
-              <X className="w-4 h-4" /> Cancel
-            </button>
-          )}
+    <div className="max-w-4xl mx-auto">
+      <div className="flex items-center justify-between mb-8">
+        <div>
+          <div className="flex items-center gap-2 mb-1"><BookOpen className="w-4 h-4 text-purple-400" /><p className="text-xs text-gray-500 uppercase tracking-widest">Manage</p></div>
+          <h1 className="font-display text-2xl font-bold text-gray-100">Blogs</h1>
         </div>
+        <button onClick={openCreate} className="btn-primary text-sm py-2 px-4"><Plus className="w-4 h-4" /> New Post</button>
       </div>
 
-      <div className="grid gap-4">
-        {blogs.map((b) => (
-          <div
-            key={b._id}
-            className="p-4 border rounded bg-gray-50 dark:bg-gray-700 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shadow-sm"
-          >
-            <div className="flex-1 min-w-0">
-              <h3 className="font-bold text-lg text-gray-900 dark:text-white truncate">
-                {b.title}
-              </h3>
-              <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-2">
-                {b.content}
-              </p>
-              <div className="flex flex-wrap gap-2 mt-2">
-                {b.tags &&
-                  b.tags.map((tag, i) => (
-                    <span
-                      key={i}
-                      className="text-xs bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 px-2 py-0.5 rounded"
-                    >
-                      {tag}
-                    </span>
-                  ))}
+      {blogs.length === 0 ? (
+        <div className="text-center py-16 text-gray-500"><BookOpen className="w-12 h-12 mx-auto mb-3 opacity-20" />No blog posts yet.</div>
+      ) : (
+        <div className="space-y-3">
+          {blogs.map((b, i) => (
+            <motion.div key={b._id} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
+              className="glass rounded-2xl p-5 flex items-center gap-4">
+              {b.image ? (
+                <img src={b.image} alt={b.title} className="w-14 h-14 rounded-xl object-cover flex-shrink-0" style={{ border: "1px solid rgba(255,255,255,0.08)" }} />
+              ) : (
+                <div className="w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "rgba(124,92,252,0.08)" }}>
+                  <BookOpen className="w-6 h-6 text-purple-400" />
+                </div>
+              )}
+              <div className="flex-1 min-w-0">
+                <p className="font-display font-semibold text-gray-100 text-sm truncate">{b.title}</p>
+                <p className="text-xs text-gray-500 mt-0.5 line-clamp-1">{b.content}</p>
+                {b.tags?.length > 0 && <div className="flex flex-wrap gap-1 mt-1.5">{b.tags.slice(0,3).map(t => <span key={t} className="tag text-xs">{t}</span>)}</div>}
               </div>
-            </div>
+              <div className="flex gap-1.5 flex-shrink-0">
+                <button onClick={() => openEdit(b)} className="w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:text-purple-400 transition-colors" style={{ background: "rgba(255,255,255,0.04)" }}><Pencil className="w-3.5 h-3.5" /></button>
+                <button onClick={() => handleDelete(b._id)} className="w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:text-red-400 transition-colors" style={{ background: "rgba(255,255,255,0.04)" }}><Trash2 className="w-3.5 h-3.5" /></button>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      )}
 
-            <div className="flex gap-2 shrink-0">
-              <button
-                onClick={() => handleEdit(b)}
-                className="p-2 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-gray-600 rounded transition-colors"
-                title="Edit"
-              >
-                <Pencil className="w-5 h-5" />
-              </button>
-              <button
-                onClick={() => handleDelete(b._id)}
-                className="p-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-gray-600 rounded transition-colors"
-                title="Delete"
-              >
-                <Trash2 className="w-5 h-5" />
-              </button>
-            </div>
-          </div>
-        ))}
-        {blogs.length === 0 && (
-          <p className="text-center text-gray-500">No blogs found.</p>
+      <AnimatePresence>
+        {modal && (
+          <>
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-40 bg-black/70 backdrop-blur-sm" onClick={() => setModal(false)} />
+            <motion.div initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95 }} className="fixed inset-0 z-50 flex items-center justify-center p-4">
+              <div className="w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl p-7" style={{ background: "#0f0f1a", border: "1px solid rgba(255,255,255,0.1)" }}>
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="font-display font-bold text-lg text-gray-100">{editId ? "Edit Blog Post" : "New Blog Post"}</h2>
+                  <button onClick={() => setModal(false)} className="text-gray-500 hover:text-gray-200"><X className="w-5 h-5" /></button>
+                </div>
+                <form onSubmit={handleSubmit} className="space-y-5">
+                  <div><label className="block text-xs text-gray-500 mb-1.5 font-medium tracking-wide">Title *</label><input value={form.title} onChange={e => setForm(p => ({ ...p, title: e.target.value }))} placeholder="Blog post title..." className="input-field text-sm" /></div>
+                  <div><label className="block text-xs text-gray-500 mb-1.5 font-medium tracking-wide">Content *</label><textarea value={form.content} onChange={e => setForm(p => ({ ...p, content: e.target.value }))} rows={7} className="input-field text-sm resize-none" placeholder="Write your blog content here..." /></div>
+                  <div><label className="block text-xs text-gray-500 mb-1.5 font-medium tracking-wide">Tags (comma separated)</label><input value={form.tags} onChange={e => setForm(p => ({ ...p, tags: e.target.value }))} placeholder="React, Node.js, Web Dev" className="input-field text-sm" /></div>
+                  <div>
+                    <label className="block text-xs text-gray-500 mb-1.5 font-medium tracking-wide">Cover Image</label>
+                    <div className="flex items-center gap-3 flex-wrap">
+                      {form.image && <img src={form.image} alt="preview" className="w-20 h-14 rounded-xl object-cover" style={{ border: "1px solid rgba(255,255,255,0.08)" }} />}
+                      <label className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl cursor-pointer text-sm font-medium ${uploading ? "opacity-60" : "hover:opacity-80"}`} style={{ background: "rgba(124,92,252,0.12)", border: "1px solid rgba(124,92,252,0.25)", color: "#c084fc" }}>
+                        {uploading ? <><Loader2 className="w-4 h-4 animate-spin" /> Uploading…</> : <><Upload className="w-4 h-4" /> Upload Image</>}
+                        <input type="file" accept="image/*" onChange={handleFile} disabled={uploading} className="hidden" />
+                      </label>
+                      <input value={form.image} onChange={e => setForm(p => ({ ...p, image: e.target.value }))} placeholder="Or paste image URL..." className="input-field text-xs flex-1 min-w-32" />
+                    </div>
+                  </div>
+                  <div className="flex justify-end gap-3 pt-2">
+                    <button type="button" onClick={() => setModal(false)} className="btn-outline text-sm py-2 px-5">Cancel</button>
+                    <button type="submit" disabled={loading || uploading} className="btn-primary text-sm py-2 px-5">
+                      {loading ? <><Loader2 className="w-4 h-4 animate-spin" /> Saving…</> : <><Save className="w-4 h-4" /> {editId ? "Update" : "Publish"}</>}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </motion.div>
+          </>
         )}
-      </div>
+      </AnimatePresence>
     </div>
   );
 }
