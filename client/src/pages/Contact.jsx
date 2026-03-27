@@ -69,8 +69,8 @@ const Contact = () => {
 
   const socials = [
     { icon: Github,   href: "https://github.com/Biku4321", color: "#e5e7eb" },
-    { icon: Linkedin, href: "#",                           color: "#60a5fa" },
-    { icon: Twitter,  href: "#",                           color: "#38bdf8" },
+    { icon: Linkedin, href: "https://www.linkedin.com/in/bikash-samanta-15a06428a",                           color: "#60a5fa" },
+    { icon: Twitter,  href: "https://x.com/BikashS22604480",                           color: "#38bdf8" },
     { icon: Mail,     href: "mailto:samantabikash83939@gmail.com", color: "#f472b6" },
   ];
 

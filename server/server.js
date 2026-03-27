@@ -17,7 +17,7 @@ import educationRoutes from "./routes/educationRoute.js";
 import aboutRoutes from "./routes/aboutRoutes.js";
 import blogRoutes from "./routes/blogRoutes.js";
 import routers from "./routes/hackathonRoutes.js";
-
+import hackathonRoutes from "./routes/hackathonRoutes.js";
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -74,6 +74,7 @@ app.use("/api/skills", skillsRoutes);
 app.use("/api/projects", projectRoutes);
 app.use("/api/routers", projectRoutes);
 app.use("/api/blogs", blogRoutes);
+app.use("/api/hackathons", hackathonRoutes);
 //app.use("/api/contact", contactRoutes);
 
 // ✅ Health check

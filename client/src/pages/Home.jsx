@@ -120,11 +120,11 @@ const Home = () => {
   const navigate = useNavigate();
 
   const roles = [
-  "🚀 Full Stack Developer",
-  "⚡ MERN Stack Engineer",
-  "💡 Building Real-World Solutions",
-  "🔥 Turning Ideas into Products",
-];
+    "🚀 Full Stack Developer",
+    "⚡ MERN Stack Engineer",
+    "💡 Building Real-World Solutions",
+    "🔥 Turning Ideas into Products",
+  ];
   const calendlyUrl = import.meta.env.VITE_CALENDLY_URL;
   const ghUser = import.meta.env.VITE_GITHUB_USERNAME || "Biku4321";
   const githubStats = useGithubStats(ghUser);
@@ -518,7 +518,7 @@ const Home = () => {
               </span>
             </h2>
           </motion.div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+          <div className="flex flex-wrap justify-center items-center gap-4 sm:gap-6 w-full mb-8 mt-6">
             {[
               { label: "Contributions", value: monthlyCount ?? "—" },
               { label: "Repositories", value: githubStats?.repos ?? "—" },
@@ -530,16 +530,20 @@ const Home = () => {
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.1 }}
-                className="p-4 rounded-xl text-center backdrop-blur-md"
+                // w-40 (mobile) aur sm:w-48 (desktop) lagaya taaki size fix rahe, shrink-0 isse chota hone se rokega
+                className="p-4 rounded-xl text-center backdrop-blur-md w-40 sm:w-48 shrink-0 shadow-sm"
                 style={{
                   background: "rgba(255,255,255,0.05)",
-                  border: `1px solid ${cardBorder}`,
+                  border: `1px solid ${cardBorder || "rgba(255,255,255,0.1)"}`,
                 }}
               >
-                <p className="text-xl font-bold text-purple-400">
+                <p className="text-2xl font-bold text-purple-400">
                   {item.value}
                 </p>
-                <p className="text-xs mt-1" style={{ color: textSec }}>
+                <p
+                  className="text-sm mt-1"
+                  style={{ color: textSec || "#94a3b8" }}
+                >
                   {item.label}
                 </p>
               </motion.div>
