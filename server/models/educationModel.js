@@ -15,6 +15,7 @@ const qualificationSchema = new mongoose.Schema(
     year:        { type: String, trim: true },                  // "2020 - 2024"
     location:    { type: String, trim: true },                  // "Bangalore, India"
     grade:       { type: String, trim: true },                  // "9.2/10"
+    gradeType:   { type: String, enum: ["cgpa", "aggregate"], default: "cgpa" }, // label selector
     description: { type: String, trim: true },
     courses:     { type: [String], default: [] },               // coursework tags
     highlights:  { type: [String], default: [] },               // checkmark bullet points
