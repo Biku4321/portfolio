@@ -175,16 +175,16 @@ const ProjectModal = ({ project: p, onClose }) => {
               <div className="flex gap-2 flex-shrink-0">
                 {p.github && (
                   <a
-                    href={p.github}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="w-9 h-9 rounded-xl flex items-center justify-center transition-all"
-                    style={{ color: "var(--text-secondary)" }}
-                    style={{
-                      background: "rgba(255,255,255,0.05)",
-                      border: "1px solid rgba(255,255,255,0.08)",
-                    }}
-                  >
+  href={p.github}
+  target="_blank"
+  rel="noreferrer"
+  className="w-9 h-9 rounded-xl flex items-center justify-center transition-all"
+  style={{
+    color: "var(--text-secondary)",
+    background: "rgba(255,255,255,0.05)",
+    border: "1px solid rgba(255,255,255,0.08)",
+  }}
+>
                     <Github className="w-4 h-4" />
                   </a>
                 )}
@@ -203,11 +203,13 @@ const ProjectModal = ({ project: p, onClose }) => {
                   </a>
                 )}
                 <button
-                  onClick={onClose}
-                  className="w-9 h-9 rounded-xl flex items-center justify-center transition-all"
-                  style={{ color: "var(--text-muted)" }}
-                  style={{ background: "rgba(255,255,255,0.04)" }}
-                >
+  onClick={onClose}
+  className="w-9 h-9 rounded-xl flex items-center justify-center transition-all"
+  style={{
+    color: "var(--text-muted)",
+    background: "rgba(255,255,255,0.04)"
+  }}
+>
                   <X className="w-4 h-4" />
                 </button>
               </div>
@@ -804,19 +806,19 @@ const PublicProjects = () => {
             </p>
             <div className="flex items-center gap-2">
               <button
-                onClick={() => {
-                  const p = page - 1;
-                  setPage(p);
-                  fetchProjects({ page: p });
-                }}
-                disabled={page <= 1}
-                className="p-2 rounded-xl disabled:opacity-30 transition-all"
-                style={{ color: "var(--text-secondary)" }}
-                style={{
-                  background: "rgba(255,255,255,0.05)",
-                  border: "1px solid rgba(255,255,255,0.08)",
-                }}
-              >
+  onClick={() => {
+    const p = page - 1;
+    setPage(p);
+    fetchProjects({ page: p });
+  }}
+  disabled={page <= 1}
+  className="p-2 rounded-xl disabled:opacity-30 transition-all"
+  style={{
+    color: "var(--text-secondary)",
+    background: "rgba(255,255,255,0.05)",
+    border: "1px solid rgba(255,255,255,0.08)",
+  }}
+>
                 <ChevronLeft className="w-4 h-4" />
               </button>
               {Array.from({ length: totalPages }, (_, i) => i + 1)
@@ -842,19 +844,19 @@ const PublicProjects = () => {
                   </button>
                 ))}
               <button
-                onClick={() => {
-                  const p = page + 1;
-                  setPage(p);
-                  fetchProjects({ page: p });
-                }}
-                disabled={page >= totalPages}
-                className="p-2 rounded-xl disabled:opacity-30 transition-all"
-                style={{ color: "var(--text-secondary)" }}
-                style={{
-                  background: "rgba(255,255,255,0.05)",
-                  border: "1px solid rgba(255,255,255,0.08)",
-                }}
-              >
+  onClick={() => {
+    const p = page + 1;
+    setPage(p);
+    fetchProjects({ page: p });
+  }}
+  disabled={page >= totalPages}
+  className="p-2 rounded-xl disabled:opacity-30 transition-all"
+  style={{
+    color: "var(--text-secondary)",
+    background: "rgba(255,255,255,0.05)",
+    border: "1px solid rgba(255,255,255,0.08)",
+  }}
+>
                 <ChevronRight className="w-4 h-4" />
               </button>
             </div>

@@ -96,8 +96,63 @@ const levelConfig = {
 };
 
 /* Skill Card */
+// const SkillChip = ({ skill, index }) => {
+//   const level = levelConfig[skill.level] || levelConfig["Beginner"];
+//   return (
+//     <motion.div
+//       initial={{ opacity: 0, scale: 0.85 }}
+//       whileInView={{ opacity: 1, scale: 1 }}
+//       whileHover={{ scale: 1.05 }}
+//       viewport={{ once: true }}
+//       transition={{ delay: index * 0.04, duration: 0.4 }}
+//       data-cursor-hover
+//       className="group relative overflow-hidden rounded-2xl p-4 cursor-pointer
+//       bg-white/70 dark:bg-white/[0.04]
+//       backdrop-blur-2xl
+//       border border-white/20 dark:border-white/10
+//       shadow-[0_10px_40px_rgba(0,0,0,0.08)]
+//       hover:shadow-[0_10px_40px_rgba(168,85,247,0.25)]
+//       transition-all duration-300"
+//     >
+//       <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition duration-500 bg-gradient-to-r from-purple-500/10 via-indigo-500/10 to-transparent" />
+//       <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-white/40 to-transparent opacity-20 pointer-events-none" />
+//       <div className="relative flex items-center gap-3">
+//         {skill.icon ? (
+//           <img
+//             src={skill.icon}
+//             alt={skill.name}
+//             className="w-8 h-8 object-contain rounded-md group-hover:scale-110 transition"
+//           />
+//         ) : (
+//           <div className="w-8 h-8 flex items-center justify-center rounded-md bg-purple-100 dark:bg-purple-500/10">
+//             <Zap className="w-4 h-4 text-purple-600 dark:text-purple-400 group-hover:rotate-6 transition" />
+//           </div>
+//         )}
+//         <div className="flex-1">
+//           <p className="text-sm font-semibold text-slate-800 dark:text-gray-200">
+//             {skill.name}
+//           </p>
+//           {skill.level && (
+//             <span
+//               className="text-[10px] uppercase tracking-wider"
+//               style={{ color: level.color }}
+//             >
+//               {skill.level}
+//             </span>
+//           )}
+//           <div className="mt-2 h-1 w-full bg-slate-200 dark:bg-white/10 rounded-full overflow-hidden">
+//             <div
+//               className="h-full bg-gradient-to-r from-purple-500 to-indigo-500"
+//               style={{ width: level.width }}
+//             />
+//           </div>
+//         </div>
+//       </div>
+//     </motion.div>
+//   );
+// };
+/* Skill Card */
 const SkillChip = ({ skill, index }) => {
-  const level = levelConfig[skill.level] || levelConfig["Beginner"];
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.85 }}
@@ -112,11 +167,12 @@ const SkillChip = ({ skill, index }) => {
       border border-white/20 dark:border-white/10
       shadow-[0_10px_40px_rgba(0,0,0,0.08)]
       hover:shadow-[0_10px_40px_rgba(168,85,247,0.25)]
-      transition-all duration-300"
+      transition-all duration-300 flex items-center justify-center"
     >
       <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition duration-500 bg-gradient-to-r from-purple-500/10 via-indigo-500/10 to-transparent" />
       <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-white/40 to-transparent opacity-20 pointer-events-none" />
-      <div className="relative flex items-center gap-3">
+      
+      <div className="relative flex items-center gap-3 w-full">
         {skill.icon ? (
           <img
             src={skill.icon}
@@ -128,30 +184,15 @@ const SkillChip = ({ skill, index }) => {
             <Zap className="w-4 h-4 text-purple-600 dark:text-purple-400 group-hover:rotate-6 transition" />
           </div>
         )}
-        <div className="flex-1">
+        <div className="flex-1 flex items-center">
           <p className="text-sm font-semibold text-slate-800 dark:text-gray-200">
             {skill.name}
           </p>
-          {skill.level && (
-            <span
-              className="text-[10px] uppercase tracking-wider"
-              style={{ color: level.color }}
-            >
-              {skill.level}
-            </span>
-          )}
-          <div className="mt-2 h-1 w-full bg-slate-200 dark:bg-white/10 rounded-full overflow-hidden">
-            <div
-              className="h-full bg-gradient-to-r from-purple-500 to-indigo-500"
-              style={{ width: level.width }}
-            />
-          </div>
         </div>
       </div>
     </motion.div>
   );
 };
-
 /* Main Component */
 const PublicSkills = () => {
   const [skills, setSkills] = useState([]);

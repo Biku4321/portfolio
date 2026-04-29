@@ -466,10 +466,17 @@ const Home = () => {
     }
   };
 
-  const topSkills = skills
-    .map((s) => (typeof s === "object" ? s.name || s : s))
-    .filter(Boolean)
-    .slice(0, 8);
+
+let topSkills = skills.filter((s) => typeof s === "object" && s.isTop);
+
+if (topSkills.length === 0) {
+  topSkills = skills;
+}
+
+topSkills = topSkills
+  .map((s) => (typeof s === "object" ? s.name || s : s))
+  .filter(Boolean)
+  .slice(0, 8);
 
   const prevMonth = () =>
     setGithubDate((d) => {
@@ -804,10 +811,10 @@ const Home = () => {
 
               {/* Orbiting skill badges */}
               {[
-                { label: "React", icon: Code2, angle: 0, color: "#61dafb" },
-                { label: "Node", icon: Server, angle: 90, color: "#68a063" },
-                { label: "Next", icon: Globe, angle: 180, color: "#ffffff" },
-                { label: "AI", icon: Zap, angle: 270, color: "#fbbf24" },
+                // { label: "React", icon: Code2, angle: 0, color: "#61dafb" },
+                // { label: "Node", icon: Server, angle: 90, color: "#68a063" },
+                // { label: "Next", icon: Globe, angle: 180, color: "#ffffff" },
+                // { label: "AI", icon: Zap, angle: 270, color: "#fbbf24" },
               ].map(({ label, icon: Icon, angle, color }) => {
                 const rad = (angle * Math.PI) / 180;
                 const r = 155;
