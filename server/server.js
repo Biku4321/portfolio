@@ -22,7 +22,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 console.log(
-  "✅ Loaded JWT_SECRET:",
+  "Loaded JWT_SECRET:",
   process.env.JWT_SECRET ? "EXISTS" : "MISSING"
 );
 
@@ -31,7 +31,7 @@ if (!process.env.JWT_SECRET) {
   throw new Error("❌ JWT_SECRET is missing in .env");
 }
 
-// ✅ Enhanced CORS configuration
+// Enhanced CORS configuration
 app.use(
   cors({
     origin: [
@@ -41,6 +41,8 @@ app.use(
       "https://portfolio-three-drab-22.vercel.app",
       "https://portfolio-git-main-biku4321s-projects.vercel.app",
       "https://portfolio-r0e6ipuer-biku4321s-projects.vercel.app",
+      "https://bikashsamanta.xyz",
+      "https://www.bikashsamanta.xyz"
     ],
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE"],
@@ -48,13 +50,13 @@ app.use(
   })
 );
 app.options("*", cors());
-// ✅ Middleware
+//  Middleware
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 app.use(helmet());
 app.use(cookieParser());
 
-// ✅ Rate limiter (register before auth routes)
+//  Rate limiter (register before auth routes)
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 20,
@@ -62,7 +64,7 @@ const authLimiter = rateLimit({
 });
 app.use("/api/admin", authLimiter);
 
-// ✅ Routes
+//  Routes
 app.use("/api/upload", uploadRoutes);
 app.use("/api/admin/stats", adminStatsRoutes); // stats route now in its own file
 app.use("/api/about", aboutRoutes);
@@ -77,12 +79,12 @@ app.use("/api/blogs", blogRoutes);
 app.use("/api/hackathons", hackathonRoutes);
 //app.use("/api/contact", contactRoutes);
 
-// ✅ Health check
+//  Health check
 app.get("/", (req, res) => {
   res.json({ message: "Portfolio API is live!", status: "success" });
 });
 
-// ✅ Global error handler
+//  Global error handler
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({
@@ -94,19 +96,19 @@ app.use((err, req, res, next) => {
   });
 });
 
-// ✅ 404 handler
+//  404 handler
 app.use("*", (req, res) => {
   res.status(404).json({ message: "Route not found" });
 });
 
-// ✅ MongoDB + server startup
+//  MongoDB + server startup
 const PORT = process.env.PORT || 5000;
 const mongoUri = process.env.MONGO_URI || "mongodb://127.0.0.1:27017/portfolio";
 
 mongoose
   .connect(mongoUri)
   .then(() => {
-    console.log("✅ MongoDB Connected Successfully");
+    console.log(" MongoDB Connected Successfully");
     app.listen(PORT, () => {
       console.log(`🚀 Server running on http://localhost:${PORT}`);
     });
